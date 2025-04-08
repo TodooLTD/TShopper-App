@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "394385289303",
+    "project_id": "tshopperapp",
+    "storage_bucket": "tshopperapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394385289303:android:b93ef04f813142daf47312",
+        "android_client_info": {
+          "package_name": "com.todogroup.tshopper_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj9z-s8Je-Ng03mKY95Lx2Euxc-80Az5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

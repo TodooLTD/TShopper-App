@@ -1,0 +1,115 @@
+name: tshopper_app
+description: ""
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
+  flutter_translate: ^4.0.4
+  flutter_sizer: any
+  sign_button: ^2.0.6
+  collection: ^1.15.0
+  flutter_riverpod: ^2.4.9
+  path_provider: ^2.1.2
+  http: ^1.1.2
+  provider: ^6.0.1
+  lottie: ^3.0.0
+  flutter_staggered_grid_view: ^0.4.0
+  wolt_modal_sheet: ^0.2.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+  photo_view: ^0.14.0
+  carousel_slider: ^4.2.1
+  cupertino_back_gesture: ^0.1.0
+  overlay_support: ^2.1.0
+  flutter_launcher_icons: ^0.10.0
+  flutter_barcode_scanner: ^2.0.0
+  dropdown_search: ^5.0.6
+  onesignal_flutter: ^5.1.2
+  ably_flutter: ^1.2.34
+  audioplayers: 5.2.1
+  cupertino_icons: ^1.0.6
+  firebase_auth: ^4.15.2
+  firebase_core: ^3.6.0
+  image_picker: ^1.1.2
+  intercom_flutter: ^8.1.1
+  url_launcher: ^6.2.6
+  vibration: ^1.8.4
+  esc_pos_printer: ^4.1.0
+  esc_pos_utils: ^1.1.0
+  package_info_plus: ^4.2.0
+  animated_toggle_switch: ^0.8.3
+  flutter_google_places_hoc081098: ^1.2.0-nullsafety.5
+  google_api_headers: ^1.6.0
+  google_maps_flutter: ^2.5.3
+  latlong2: ^0.9.1
+  hooks_riverpod: ^2.4.10
+  pay: ^2.0.0
+  video_player: ^2.4.6
+  dio: ^5.3.2
+  open_file: ^3.3.2
+  file_picker: ^8.3.2
+
+dependency_overrides:
+  firebase_core: ^2.24.2
+  http: ^1.1.2
+  intl: ^0.19.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/i18n/
+    - assets/lottie/
+    - assets/icons/
+    - assets/sounds/
+    - assets/lottie/
+    - assets/images/purple3DPin.png
+    - assets/images/
+    - assets/images/payment/
+    - assets/images/vehicles/
+    - assets/images/orderStatus/
+    - assets/images/restaurantFilters/
+    - assets/images/newIcons/
+
+  fonts:
+    - family: todoFont
+      fonts:
+        - asset: assets/fonts/Fredoka/Fredoka-Light.ttf
+          weight: 200
+        - asset: assets/fonts/Fredoka/Fredoka-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Fredoka/Fredoka-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Fredoka/Fredoka-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Fredoka/Fredoka-Bold.ttf
+          weight: 700
+    - family: arimo
+      fonts:
+        - asset: assets/fonts/Arimo/Arimo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Arimo/Arimo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Arimo/Arimo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Arimo/Arimo-Bold.ttf
+          weight: 700
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/BusinessManagerLOGO.png"
+
