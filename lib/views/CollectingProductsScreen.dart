@@ -277,113 +277,100 @@ class _CollectingProductsScreenState
                           ),
                         ]
                       ],
-                      SizedBox(height: 16.dp),
-                      Row(
-                        children: [
-                          Expanded(
-                              flex: 3,
-                              child: GestureDetector(
-                                onTap: isCollectionDone()
-                                    ? () async {
-                                        List<ProductTShopperOrder>
-                                            missingProducts =
-                                            _getMissingProducts();
-                                        if (missingProducts.isNotEmpty) {
-                                          _showMissingProductsDialog(
-                                              missingProducts);
-                                        } else {
-                                          bool response =
-                                              await updateCollection();
-                                          if (response) {
-                                            widget.store.storeStatus =
-                                                'COLLECTION_DONE';
-                                            int counter = 0;
-                                            for (TShopperOrderStore store
-                                                in widget.order.orderStores) {
-                                              if (store.storeStatus ==
-                                                      'IN_COLLECTION' ||
-                                                  store.storeStatus ==
-                                                      'ON_HOLD') {
-                                                counter++;
-                                              }
-                                            }
-                                            if (counter == 0) {
-                                              widget.order.orderStatus =
-                                                  'WAITING_FOR_PAYMENT_REQUEST';
-                                            }
-                                            showBottomPopup(
-                                              context: context,
-                                              message: "ליקוט התעדכן בהצלחה!💜",
-                                              imagePath:
-                                                  "assets/images/warning_icon.png",
-                                            );
-                                            Navigator.pop(context);
-                                          } else {
-                                            showBottomPopup(
-                                              context: context,
-                                              message:
-                                                  "שגיאה בעדכון ליקוט, נסה שוב",
-                                              imagePath:
-                                                  "assets/images/warning_icon.png",
-                                            );
-                                          }
-                                        }
-                                      }
-                                    : null,
-                                child: Container(
-                                  height: 50.dp,
-                                  decoration: BoxDecoration(
-                                    color: isCollectionDone()
-                                        ? AppColors.primeryColor
-                                        : AppColors.mediumGreyText,
-                                    borderRadius: BorderRadius.circular(10.dp),
-                                    border: Border.all(
-                                      color: isCollectionDone()
-                                          ? AppColors.primeryColor
-                                          : AppColors.mediumGreyText,
-                                      width: 1.dp,
-                                    ),
-                                  ),
-                                  child: Center(
-                                      child: Text("סיימתי ללקט👏🏻",
-                                          style: TextStyle(
-                                              fontSize: 13.dp,
-                                              fontFamily: 'arimo',
-                                              fontWeight: FontWeight.w800,
-                                              color: AppColors.white))),
-                                ),
-                              )),
-                          SizedBox(
-                            width: 8.dp,
-                          ),
-                          Expanded(
-                              flex: 1,
-                              child: Container(
-                                height: 50.dp,
-                                decoration: BoxDecoration(
-                                  color:
-                                      AppColors.primeryColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10.dp),
-                                ),
-                                child: Center(
-                                    child: Image.asset(
-                                  "assets/images/iconChat.png",
-                                  height: 38.dp,
-                                )),
-                              )),
-                          SizedBox(
-                            width: 8.dp,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 50.dp,
-                      )
+                      SizedBox(height: 80.dp),
                     ],
                   ),
                 ),
               ),
             ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(left: 16.dp, right: 16.dp, bottom: 30.dp),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: GestureDetector(
+                onTap: isCollectionDone()
+                    ? () async {
+                  List<ProductTShopperOrder> missingProducts = _getMissingProducts();
+                  if (missingProducts.isNotEmpty) {
+                    _showMissingProductsDialog(missingProducts);
+                  } else {
+                    bool response = await updateCollection();
+                    if (response) {
+                      widget.store.storeStatus = 'COLLECTION_DONE';
+                      int counter = widget.order.orderStores
+                          .where((store) => store.storeStatus == 'IN_COLLECTION' || store.storeStatus == 'ON_HOLD')
+                          .length;
+
+                      if (counter == 0) {
+                        widget.order.orderStatus = 'WAITING_FOR_PAYMENT_REQUEST';
+                      }
+
+                      showBottomPopup(
+                        context: context,
+                        message: "ליקוט התעדכן בהצלחה!💜",
+                        imagePath: "assets/images/warning_icon.png",
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      showBottomPopup(
+                        context: context,
+                        message: "שגיאה בעדכון ליקוט, נסה שוב",
+                        imagePath: "assets/images/warning_icon.png",
+                      );
+                    }
+                  }
+                }
+                    : null,
+                child: Container(
+                  height: 50.dp,
+                  decoration: BoxDecoration(
+                    color: isCollectionDone()
+                        ? AppColors.primeryColor
+                        : AppColors.mediumGreyText,
+                    borderRadius: BorderRadius.circular(10.dp),
+                    border: Border.all(
+                      color: isCollectionDone()
+                          ? AppColors.primeryColor
+                          : AppColors.mediumGreyText,
+                      width: 1.dp,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "סיימתי ללקט👏🏻",
+                      style: TextStyle(
+                        fontSize: 13.dp,
+                        fontFamily: 'arimo',
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 8.dp),
+            Expanded(
+              flex: 1,
+              child: Container(
+                height: 50.dp,
+                decoration: BoxDecoration(
+                  color: AppColors.primeryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10.dp),
+                ),
+                child: Center(
+                  child: Image.asset(
+                    "assets/images/iconChat.png",
+                    height: 38.dp,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -460,11 +447,7 @@ class _CollectingProductsScreenState
                           widget.order.orderStatus =
                           'DONE_COLLECTING';
                         }
-                        showBottomPopup(
-                          context: context,
-                          message: "ליקוט התעדכן בהצלחה!💜",
-                          imagePath: "assets/images/warning_icon.png",
-                        );
+
                         Navigator.pop(context);
                       } else {
                         showBottomPopup(
@@ -530,7 +513,9 @@ class _CollectingProductsScreenState
   }
 
   bool isCollectionDone() {
+    int counter = 0;
     for (var product in widget.store.products) {
+      counter += product.collectQuantity;
       // If quantity to collect is 0 — skip checks
       if (product.collectQuantity == 0) continue;
 
@@ -541,6 +526,8 @@ class _CollectingProductsScreenState
         return false;
       }
     }
+    if(counter == 0) return false;
+
     return true;
   }
 

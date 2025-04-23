@@ -5,15 +5,15 @@ import 'package:tshopper_app/models/order/PaymentRequest.dart';
 import 'package:tshopper_app/models/order/TShopperOrderStore.dart';
 import 'package:tshopper_app/sevices/TShopperService.dart';
 import 'package:tshopper_app/views/CollectingProductsScreen.dart';
-import 'package:tshopper_app/widgets/trackingOrder/ChooseTimeForCourierWidget.dart';
 import '../../../../constants/AppColors.dart';
 import '../../../../constants/AppFontSize.dart';
 import '../../main.dart';
+import '../../models/managerRequest/ManagerRequest.dart';
 import '../../models/order/TShopperOrder.dart';
+import '../../sevices/ManagerRequestService.dart';
 import '../popup/BottomPopup.dart';
 import 'ChooseBagAndImagesWidget.dart';
 import 'CustomElevatedButton.dart';
-import 'OrderItemContainer.dart';
 import 'ProductTShopperOrderCard.dart';
 
 class StoreOrderCard extends StatefulWidget {
@@ -133,7 +133,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                     && widget.store.storeStatus != 'DONE')...[
                   GestureDetector(
                     onTap: () async {
-                      showCancelStorePopup(context);
+                      showSendManagerRequestPopup(context);
 
                     },
                     child: Container(
@@ -207,7 +207,23 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                   ),
                   Text("  מוצרים", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,  fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
                   if(widget.isInProgress && widget.store.isCollectionDone())...[
-                    Text(" | ${widget.store.getPrice().toStringAsFixed(2)}₪", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,  fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
+                    if(widget.store.paymentRequests!.isNotEmpty && !widget.isInProgress)...[
+                      Text(" | ", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                          fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
+                      Text("${widget.store.paymentRequests?.first.productsPrice.toStringAsFixed(2)}₪", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                          fontFamily: 'arimo', fontWeight: FontWeight.w500, color: (widget.store.paymentRequests?.first.productsPrice != widget.store.paymentRequests?.first.forcePrice)
+                              && widget.store.paymentRequests?.first.status == 'PAID' ? AppColors.mediumGreyText : AppColors.blackText),),
+                      if((widget.store.paymentRequests?.first.productsPrice != widget.store.paymentRequests?.first.forcePrice)
+                          && widget.store.paymentRequests?.first.status == 'PAID')
+                        Text("  ${widget.store.paymentRequests?.first.forcePrice.toStringAsFixed(2)}₪", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                            fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.primeryColor),),
+                    ],
+                    if(widget.store.paymentRequests!.isNotEmpty && widget.isInProgress)...[
+                      Text(" | ", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                          fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
+                      Text("${widget.store.getPrice().toStringAsFixed(2)}₪", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                          fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
+                    ],
                     Spacer(),
                     Spacer(),
                     Spacer(),
@@ -230,37 +246,37 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                             ),
                           ],
                         ),
-                      if(widget.store.storeStatus == 'PAYMENT_DONE')
-                        Container(
-                          decoration:  BoxDecoration(
-                              color: AppColors.strongGreen.withOpacity(0.1),
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(
-                                  5.dp)
-                          ),
-                          child:
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.0.dp, vertical: 6.dp),
-                            child: Text("שולם",
-                              style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.strongGreen),),
-                          ),
-                        ),
-                      if(widget.store.storeStatus == 'PAYMENT_DECLINED' ||
-                          widget.store.storeStatus =='CANCELLED')
-                        Container(
-                          decoration:  BoxDecoration(
-                              color: AppColors.redColor.withOpacity(0.1),
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(
-                                  5.dp)
-                          ),
-                          child:
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0.dp, vertical: 6.dp),
-                            child: Text(widget.store.paymentRequests!.isNotEmpty && widget.store.paymentRequests?.first.status == 'FAILED' ? "נכשלה" : "בוטלה",
-                              style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.redColor),),
-                          ),
-                        ),
+                      // if(widget.store.storeStatus == 'PAYMENT_DONE')
+                      //   Container(
+                      //     decoration:  BoxDecoration(
+                      //         color: AppColors.strongGreen.withOpacity(0.1),
+                      //         shape: BoxShape.rectangle,
+                      //         borderRadius: BorderRadius.circular(
+                      //             5.dp)
+                      //     ),
+                      //     child:
+                      //     Padding(
+                      //       padding: EdgeInsets.symmetric(horizontal: 20.0.dp, vertical: 6.dp),
+                      //       child: Text("שולם",
+                      //         style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.strongGreen),),
+                      //     ),
+                      //   ),
+                      // if(widget.store.storeStatus == 'PAYMENT_DECLINED' ||
+                      //     widget.store.storeStatus =='CANCELLED')
+                      //   Container(
+                      //     decoration:  BoxDecoration(
+                      //         color: AppColors.redColor.withOpacity(0.1),
+                      //         shape: BoxShape.rectangle,
+                      //         borderRadius: BorderRadius.circular(
+                      //             5.dp)
+                      //     ),
+                      //     child:
+                      //     Padding(
+                      //       padding: EdgeInsets.symmetric(horizontal: 10.0.dp, vertical: 6.dp),
+                      //       child: Text(widget.store.paymentRequests!.isNotEmpty && widget.store.paymentRequests?.first.status == 'FAILED' ? "נכשלה" : "בוטלה",
+                      //         style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.redColor),),
+                      //     ),
+                      //   ),
                     if(widget.store.storeStatus == 'COLLECTION_DONE')...[
                       GestureDetector(
                         onTap: () async{
@@ -657,6 +673,160 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                              "assets/images/warning_icon.png",
                            );
                          }
+                       }
+                     },
+                     style: TextButton.styleFrom(
+                       foregroundColor: AppColors.whiteText,
+                       backgroundColor: AppColors.primeryColor,
+                       padding: EdgeInsets.symmetric(
+                           horizontal: 0.dp, vertical: 4.dp),
+                       shape: RoundedRectangleBorder(
+                         borderRadius: BorderRadius.circular(8.dp),
+                       ),
+                     ),
+                     child: Text(
+                       "אישור",
+                       style: TextStyle(
+                           fontSize: 13.dp,
+                           fontFamily: 'arimo',
+                           color: AppColors.white,
+                           fontWeight: FontWeight.w800),
+                     ),
+                   ),
+                 ),
+               ),
+               Expanded(
+                 flex: 1,
+                 child: Padding(
+                   padding:  EdgeInsets.only(right: 4.0.dp),
+                   child: TextButton(
+                     onPressed: () {
+                       Navigator.pop(context);
+                     },
+                     style: TextButton.styleFrom(
+                       foregroundColor: AppColors.whiteText,
+                       backgroundColor: AppColors.superLightPurple,
+                       padding: EdgeInsets.symmetric(
+                           horizontal: 0.dp, vertical: 4.dp),
+                       shape: RoundedRectangleBorder(
+                         borderRadius: BorderRadius.circular(8.dp),
+                       ),
+                     ),
+                     child: Text(
+                       "ביטול",
+                       style: TextStyle(
+                           fontSize: 13.dp,
+                           fontFamily: 'arimo',
+                           color: AppColors.primeryColor,
+                           fontWeight: FontWeight.w500),
+                     ),
+                   ),
+                 ),
+               ),
+             ],
+           ),
+         ],
+       );
+     },
+   );
+ }
+ void showSendManagerRequestPopup(BuildContext context) {
+   showDialog(
+     context: context,
+     barrierDismissible: true,
+     builder: (BuildContext context) {
+       return AlertDialog(
+         shape: RoundedRectangleBorder(
+             borderRadius: BorderRadius.all(Radius.circular(15.dp))),
+         backgroundColor: AppColors.backgroundColor,
+         elevation: 0,
+         content: SizedBox(
+           width: MediaQuery.of(context).size.width * 0.9,
+           child: SingleChildScrollView(
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.start,
+               mainAxisSize: MainAxisSize.min,
+               children: <Widget>[
+                 Text("רשמי את סיבת הביטול ופרטי על המקרה 💜🙏🏻", style: TextStyle(color: AppColors.blackText, fontSize: 16.dp, fontWeight: FontWeight.w800, fontFamily: 'todofont'),),
+                 SizedBox(height: 16.dp,),
+                 Container(
+                   decoration: BoxDecoration(
+                     border: Border.all(color: AppColors.borderColor),
+                     borderRadius: BorderRadius.circular(8.dp),
+                   ),
+                   child: TextField(
+                     controller: notesController,
+                     autofocus: true,
+                     maxLines: 6,
+                     minLines: 1,
+                     keyboardType: TextInputType.multiline,
+                     textInputAction: TextInputAction.newline,
+                     onEditingComplete: () {
+                       if (context.mounted) {
+                         FocusScope.of(context).unfocus();
+                         Navigator.of(context).pop();
+                       }
+                     },
+                     decoration: InputDecoration(
+                       contentPadding: EdgeInsets.symmetric(
+                         horizontal: 10.dp,
+                         vertical: 10.dp,
+                       ),
+                       border: InputBorder.none,
+                     ),
+                     style: TextStyle(
+                       fontFamily: 'arimo',
+                       fontSize: AppFontSize.fontSizeRegular,
+                       fontWeight: FontWeight.w400,
+                       color: AppColors.blackText,
+                     ),
+                   ),
+                 ),
+               ],
+             ),
+           ),
+         ),
+         actions: <Widget>[
+           Row(
+             crossAxisAlignment: CrossAxisAlignment.center,
+             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+             mainAxisSize: MainAxisSize.max,
+             children: [
+               Expanded(
+                 flex: 1,
+                 child: Padding(
+                   padding:  EdgeInsets.only(left: 4.0.dp),
+                   child: TextButton(
+                     onPressed: () async {
+                       ManagerRequest request = ManagerRequest(
+                           id: 0,
+                           createdAt: "",
+                           request: "ביטול חנות ${widget.store.storeName} מהזמנה מספר ${widget.order.orderNumber} ממרכז קניות ${widget.order.centerShoppingName}",
+                           shopperNotes: notesController.text,
+                           requestSubject: "cancelStore",
+                           status: "",
+                           response: "",
+                           resolvedAt: "",
+                           objectId: widget.store.id,
+                           orderId: widget.order.orderId,
+                           shopperName: "",
+                           shoppingCenterId: widget.order.centerShoppingId);
+                       ManagerRequest? response = await ManagerRequestService.addManagerRequest(request);
+                       if(response != null){
+                         showBottomPopup(
+                           context: context,
+                           message: "בקשת ביטול חנות נשלחה בהצלחה!💜",
+                           imagePath:
+                           "assets/images/warning_icon.png",
+                         );
+                         Navigator.pop(context);
+                       }else{
+                         showBottomPopup(
+                           context: context,
+                           message: "שגיאה בעת שליחת בקשת ביטול חנות, נסה שוב",
+                           imagePath:
+                           "assets/images/warning_icon.png",
+                         );
                        }
                      },
                      style: TextButton.styleFrom(

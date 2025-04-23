@@ -12,6 +12,9 @@ import 'package:tshopper_app/widgets/trackingOrder/StoreOrderCard.dart';
 import '../../../../constants/AppColors.dart';
 import '../../../../constants/AppFontSize.dart';
 import '../../main.dart';
+import '../../models/managerRequest/ManagerRequest.dart';
+import '../../sevices/ManagerRequestService.dart';
+import '../popup/BottomPopup.dart';
 import 'CustomElevatedButton.dart';
 import 'OrderItemContainer.dart';
 
@@ -31,6 +34,7 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
   Timer? cancelTimer;
   int remainingTimeInSeconds = 0;
   bool isExpended = false;
+   TextEditingController _notesController = new TextEditingController();
 
   @override
   void initState() {
@@ -56,7 +60,8 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
   @override
   void dispose() {
     cancelTimer?.cancel();
-    assignTimer?.cancel(); // Cancel assign timer too!
+    assignTimer?.cancel();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -194,8 +199,7 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                               titleColor: AppColors.white,
                               title: "סרב",
                               onPressed: () async {
-                                // showCancelOrderAlertDialog(
-                                //     context);
+                                showSendManagerRequestPopup(context);
                               }),
                         ),
                       ),
@@ -313,4 +317,161 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
       },
     );
   }
+
+  void showSendManagerRequestPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15.dp))),
+          backgroundColor: AppColors.backgroundColor,
+          elevation: 0,
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text("רשמי את סיבת הבקשה להסרת שיבוץ ופרטי על המקרה 💜🙏🏻", style: TextStyle(color: AppColors.blackText, fontSize: 16.dp,
+                      fontWeight: FontWeight.w800, fontFamily: 'todofont'), textAlign: TextAlign.center,),
+                  SizedBox(height: 16.dp,),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.borderColor),
+                      borderRadius: BorderRadius.circular(8.dp),
+                    ),
+                    child: TextField(
+                      controller: _notesController,
+                      autofocus: true,
+                      maxLines: 6,
+                      minLines: 1,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                      onEditingComplete: () {
+                        if (context.mounted) {
+                          FocusScope.of(context).unfocus();
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10.dp,
+                          vertical: 10.dp,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      style: TextStyle(
+                        fontFamily: 'arimo',
+                        fontSize: AppFontSize.fontSizeRegular,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.blackText,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding:  EdgeInsets.only(left: 4.0.dp),
+                    child: TextButton(
+                      onPressed: () async {
+                        ManagerRequest request = ManagerRequest(
+                            id: 0,
+                            createdAt: "",
+                            request: "הסרת שופרית מהזמנה מספר ${widget.order.orderNumber} ממרכז קניות ${widget.order.centerShoppingName}",
+                            shopperNotes: _notesController.text,
+                            requestSubject: "unassignShopper",
+                            status: "",
+                            response: "",
+                            resolvedAt: "",
+                            objectId: 0,
+                            orderId: widget.order.orderId,
+                            shopperName: "",
+                            shoppingCenterId: widget.order.centerShoppingId);
+                        ManagerRequest? response = await ManagerRequestService.addManagerRequest(request);
+                        if(response != null){
+                          showBottomPopup(
+                            context: context,
+                            message: "בקשת הסרה משיבוץ נשלחה בהצלחה!💜",
+                            imagePath:
+                            "assets/images/warning_icon.png",
+                          );
+                          Navigator.pop(context);
+                        }else{
+                          showBottomPopup(
+                            context: context,
+                            message: "שגיאה בעת שליחת בקשת הסרה משיבוץ, נסה שוב",
+                            imagePath:
+                            "assets/images/warning_icon.png",
+                          );
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.whiteText,
+                        backgroundColor: AppColors.primeryColor,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 0.dp, vertical: 4.dp),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.dp),
+                        ),
+                      ),
+                      child: Text(
+                        "אישור",
+                        style: TextStyle(
+                            fontSize: 13.dp,
+                            fontFamily: 'arimo',
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding:  EdgeInsets.only(right: 4.0.dp),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.whiteText,
+                        backgroundColor: AppColors.superLightPurple,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 0.dp, vertical: 4.dp),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.dp),
+                        ),
+                      ),
+                      child: Text(
+                        "ביטול",
+                        style: TextStyle(
+                            fontSize: 13.dp,
+                            fontFamily: 'arimo',
+                            color: AppColors.primeryColor,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

@@ -8,7 +8,6 @@ import '../models/order/TShopperOrder.dart';
 import '../models/tshopper/TShopper.dart';
 
 class TShopperService {
-
   static Future<TShopper> fetchShopper(String uid) async {
     final String apiUrl = '$baseServerUrl/tshopper/$uid';
 
@@ -23,6 +22,7 @@ class TShopperService {
       throw Exception('Failed to load shopper with id $uid from API');
     }
   }
+
 
   static Future<List<TShopperOrder>?> getActiveOrders() async {
     String urlString =
@@ -282,5 +282,18 @@ class TShopperService {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
+  static Future<bool> updateCourierArrived(
+      {required int missionId}) async {
+    Uri uri = Uri.parse('$baseServerUrl/deliveryMission/testBarcodeTShopper/$missionId?scannedBarcode=${TShopper.instance.barcodeCode}');
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final response =
+    await http.get(uri, headers: headers);
+    print(response.body);
+    print(response.statusCode);
+    return response.body == 'true';
+  }
 
 }

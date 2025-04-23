@@ -1,9 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:tshopper_app/views/HomeScreen.dart';
+import 'package:tshopper_app/views/ShiftsScreen.dart';
 import '../../constants/AppColors.dart';
 import '../../constants/AppFontSize.dart';
 import '../../sevices/HelpCenterService.dart';
+import '../../views/MessagesAndRequestsScreen.dart';
+import '../../views/ShiftSelectionPage.dart';
+import '../../views/ShopperDetailsScreen.dart';
+import '../../views/SocialScreen.dart';
 
 class OverlayMenu {
   static final OverlayMenu _instance = OverlayMenu._internal();
@@ -141,34 +147,26 @@ class OverlayMenu {
                             spacing: 32.0.dp, // Horizontal space between buttons
                             runSpacing: 16.0.dp, // Vertical space between rows
                             children: [
-                              if(screenIndex != 0)
                                 _buildCircleButton(
                                   context: context,
                                   "assets/images/iconOrders.png",
                                   "הזמנות",
                                   onTap: () {
-
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => HomeScreen()));
                                   },
                                 ),
-                              if(screenIndex != 1 )
                               _buildCircleButton(
                                 context: context,
-                                "assets/images/iconDetails.png",
-                                "פרטי העסק",
+                                "assets/images/iconStory.png",
+                                "סושיאל",
                                 onTap: () {
-                                  // Navigator.pushReplacement(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => BusinessDetailsScreen()));
-                                },
-                              ),
-                              if(screenIndex != 2)
-                              _buildCircleButton(
-                                context: context,
-                                "assets/images/iconMenu.png",
-                                "תפריט",
-                                onTap: () {
-
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SocialScreen()));
                                 },
                               ),
                               _buildCircleButton(
@@ -179,77 +177,37 @@ class OverlayMenu {
                                   HelpCenterService.openHelpCenterPopup();
                                 },
                               ),
-                              if(screenIndex != 3)
-                                _buildCircleButton(
-                                  context: context,
-                                  "assets/images/iconOrderHistory.png",
-                                  "היסטוריה",
-                                  onTap: () {
-                                    // Navigator.pushReplacement(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) => OrderHistoryScreen()));
-                                  },
-                                ),
-                              if(screenIndex != 4)
-                              _buildCircleButton(
-                                context: context,
-                                "assets/images/iconStory.png",
-                                "סושיאל",
-                                onTap: () {
-                                  // Navigator.pushReplacement(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => SocialScreen()));
-                                },
-                              ),
-                              if(screenIndex != 5)
-                              _buildCircleButton(
-                                context: context,
-                                "assets/images/financeIcon.png",
-                                "תשלומים",
-                                onTap: () {
-
-                                },
-                              ),
-                              if(screenIndex != 6)
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconMessages.png",
                                 "פניות ועדכונים",
                                 onTap: () {
-                                  // Navigator.pushReplacement(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => MessagesAndRequestsScreen()));
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => MessagesAndRequestsScreen()));
                                 },
                               ),
-                              if(screenIndex != 7)
-                                _buildCircleButton(
-                                  context: context,
-                                  "assets/images/iconWorkersManager.png",
-                                  "ניהול עובדים",
-                                  onTap: () {
-
-
-                                  },
-                                ),
-                              if(screenIndex != 8)
                               _buildCircleButton(
                                 context: context,
-                                "assets/images/iconOrderCourier.png",
-                                "הזמן שליח",
+                                "assets/images/iconWorkersManager.png",
+                                "משמרות",
                                 onTap: () {
-
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ShiftsScreen()));
                                 },
                               ),
-                              if(screenIndex != 9)
                               _buildCircleButton(
                                 context: context,
-                                "assets/images/iconTrackingCourier.png",
-                                "מעקב שליחים",
+                                "assets/images/iconDetails.png",
+                                "אזור אישי",
                                 onTap: () {
-
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ShopperDetailsScreen()));
                                 },
                               ),
                             ],

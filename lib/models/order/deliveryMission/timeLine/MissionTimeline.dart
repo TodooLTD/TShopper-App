@@ -13,6 +13,7 @@ class MissionTimeline {
   String? orderCancelled;
   String? lastUpdated;
   String? courierArrivedToShopper;
+  String? courierScannedWrongBarcode;
 
   MissionTimeline({
     this.estimatedPreparationCompletedTime,
@@ -29,6 +30,7 @@ class MissionTimeline {
     this.lastUpdated,
     this.cancelReason,
     this.courierArrivedToShopper,
+    this.courierScannedWrongBarcode,
   });
 
   factory MissionTimeline.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class MissionTimeline {
       lastUpdated: json['lastUpdated'] ?? "",
       cancelReason: json['cancelReason'] ?? "",
       courierArrivedToShopper: json['courierArrivedToShopper'] ?? "",
+      courierScannedWrongBarcode: json['courierScannedWrongBarcode'] ?? "",
     );
   }
 }

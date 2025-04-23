@@ -4,6 +4,7 @@ class TShopper {
   final String uid;
   final String firstName;
   final String lastName;
+  final String color;
   final String mail;
   final String phoneNumber;
   final int currentShoppingCenterId;
@@ -11,11 +12,16 @@ class TShopper {
   final double longitude;
   final String status;
   final String barcodeCode;
+  final String barcodeImageUrl;
+  double totalHours = 0;
+  int totalDays = 0;
+
 
   TShopper._({
     required this.uid,
     required this.firstName,
     required this.lastName,
+    required this.color,
     required this.mail,
     required this.phoneNumber,
     required this.currentShoppingCenterId,
@@ -23,6 +29,7 @@ class TShopper {
     required this.longitude,
     required this.status,
     required this.barcodeCode,
+    required this.barcodeImageUrl,
   });
 
   static clear() {
@@ -41,6 +48,7 @@ class TShopper {
     return _instance ??= TShopper._(
       uid: json['uid'] ?? "",
       firstName: json['firstName'] ?? "",
+      color: json['color'] ?? "",
       lastName: json['lastName'] ?? "",
       mail: json['mail'] ?? "",
       phoneNumber: json['phoneNumber'] ?? "",
@@ -49,6 +57,7 @@ class TShopper {
       longitude: json['longitude'] ?? 0.0,
       status: json['status'] ?? "",
       barcodeCode: json['barcodeCode'] ?? "",
+      barcodeImageUrl: json['barcodeImageUrl'] ?? "",
     );
   }
 }

@@ -20,6 +20,7 @@ class _EditablePriceFieldState extends State<EditablePriceField> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
   late double lastValidPrice;
+  bool _hasTapped = false;
 
   @override
   void initState() {
@@ -27,7 +28,9 @@ class _EditablePriceFieldState extends State<EditablePriceField> {
     lastValidPrice = widget.initialPrice;
     _controller = TextEditingController(text: lastValidPrice.toStringAsFixed(2));
     _focusNode = FocusNode();
-
+    if (_controller.text.trim() == '0' || _controller.text.trim() == '0.00') {
+      _controller.clear();
+    }
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _controller.selection = TextSelection(
@@ -51,12 +54,12 @@ class _EditablePriceFieldState extends State<EditablePriceField> {
     final text = _controller.text.trim();
     final parsed = double.tryParse(text);
     print("save price");
-
-    if (parsed == null) {
-      _controller.text = lastValidPrice.toStringAsFixed(2);
-    } else {
-      lastValidPrice = parsed;
+    if(parsed != null){
+      lastValidPrice = parsed!;
       widget.onPriceUpdated(parsed);
+    }else{
+      lastValidPrice = 0;
+      widget.onPriceUpdated(0);
     }
   }
 
@@ -71,16 +74,26 @@ class _EditablePriceFieldState extends State<EditablePriceField> {
           focusNode: _focusNode,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _savePrice(),
-          onTap: () {
-            if (_controller.text.trim() == '0' || _controller.text.trim() == '0.00') {
-              _controller.clear();
-            } else {
-              _controller.selection = TextSelection(
-                baseOffset: 0,
-                extentOffset: _controller.text.length,
-              );
-            }
-          },
+            onChanged: (val) {
+            print(val);
+            print(_controller.text);
+              _savePrice();
+            },
+          // onTap: () {
+          //   if (!_hasTapped) {
+          //     setState(() {
+          //       _hasTapped = true;
+          //     });
+          //     if (_controller.text.trim() == '0' || _controller.text.trim() == '0.00') {
+          //       _controller.clear();
+          //     } else {
+          //       _controller.selection = TextSelection(
+          //         baseOffset: 0,
+          //         extentOffset: _controller.text.length,
+          //       );
+          //     }
+          //   }
+          // },
           onEditingComplete: _savePrice,
           decoration: InputDecoration(
             isDense: true,

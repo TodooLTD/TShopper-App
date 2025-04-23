@@ -133,146 +133,164 @@ class _ReadyItemState extends riverpod.ConsumerState<ReadyItem> {
                       ],
                     ),
                   ],
-                  SizedBox(height: 8.dp,),
-                  Row(
-                    children: [
-                      Container(
-                          margin:
-                          const EdgeInsets
-                              .all(2),
-                          padding:
-                          const EdgeInsets
-                              .all(1),
-                          decoration:
-                          BoxDecoration(
-                            color: AppColors
-                                .blackText,
-                            shape: BoxShape
-                                .circle,
-                          ),
-                          child: Icon(
-                            Icons.location_pin,
-                            color:
-                            AppColors
-                                .white,
-                            size: 14.dp,
-                          )),
-                      SizedBox(width: 4.dp,),
-                      Text(widget.order.deliveryMissions.first.pickupDeliveryInstruction, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12.dp, color:
-                      AppColors.mediumGreyText, fontFamily: 'arimo'),)
-                    ],
-                  ),
-                  SizedBox(height: 8.dp),
-                  Column(
-                    children: widget.order.deliveryMissions
-                        .map((mission) =>
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                            Container(
-                                margin:
-                                const EdgeInsets
-                                    .all(2),
-                                padding:
-                                const EdgeInsets
-                                    .all(1),
-                                decoration:
-                                 BoxDecoration(
-                                  color: AppColors
-                                      .blackText,
-                                  shape: BoxShape
-                                      .circle,
-                                ),
-                                child: Icon(
-                                  Icons.delivery_dining,
-                                  color:
-                                  AppColors
-                                      .white,
-                                  size: 14.dp,
-                                )),
-                            SizedBox(width: 4.dp,),
-                            Text(mission.status != 'NO_COURIER' ? mission.courierName.split(' ').first : "מחפשים שליח עבור ההזמנה",
-                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.dp, color: AppColors.blackText, fontFamily: 'arimo'),),
-                            if(mission.status != 'NO_COURIER')...[
-                              SizedBox(width: 16.dp,),
-                              Container(
-                                  margin:
-                                  const EdgeInsets
-                                      .all(2),
-                                  padding:
-                                  const EdgeInsets
-                                      .all(1),
-                                  decoration:
-                                  BoxDecoration(
-                                    color: AppColors
-                                        .blackText,
-                                    shape: BoxShape
-                                        .circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.phone,
-                                    color:
-                                    AppColors
-                                        .white,
-                                    size: 14.dp,
-                                  )),
-                              SizedBox(width: 2.dp,),
-                              GestureDetector(
-                                child: Icon(Icons.copy, color: AppColors.blackText, size: 14.dp),
-                                onTap: () {
-                                  Clipboard.setData(ClipboardData(text: mission.courierPhoneNumber));
-                                  showBottomPopup(
-                                    context: context,
-                                    message: "מספר טלפון של השליח הועתק בהצלחה",
-                                    imagePath: "assets/images/warning_icon.png",
-                                  );
-                                },
-                              ),
-                              SizedBox(width: 16.dp,),
-                              TimeToCourierWidget(mission: mission),
-                              if(mission.timeline.courierArrivedToShopper!.isNotEmpty && mission.timeline.orderPickedUp!.isEmpty)...[
-                                Spacer(),
-                                GestureDetector(
-                                  onTap: (){
-                                    showCourierPickedUpAlertDialog(context, mission);
-
-                                  },
-                                  child: Container(
-                                    height: 23.dp,
-                                    decoration:  BoxDecoration(
-                                        color: AppColors.primeryColor,
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(
-                                            8.dp)
+                  if(widget.order.deliveryMissions.isNotEmpty)...[
+                    SizedBox(height: 8.dp,),
+                    Row(
+                      children: [
+                        Container(
+                            margin:
+                            const EdgeInsets
+                                .all(2),
+                            padding:
+                            const EdgeInsets
+                                .all(1),
+                            decoration:
+                            BoxDecoration(
+                              color: AppColors
+                                  .blackText,
+                              shape: BoxShape
+                                  .circle,
+                            ),
+                            child: Icon(
+                              Icons.location_pin,
+                              color:
+                              AppColors
+                                  .white,
+                              size: 14.dp,
+                            )),
+                        SizedBox(width: 4.dp,),
+                        Text(widget.order.deliveryMissions.first.pickupDeliveryInstruction, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12.dp, color:
+                        AppColors.mediumGreyText, fontFamily: 'arimo'),)
+                      ],
+                    ),
+                    SizedBox(height: 8.dp),
+                    Column(
+                      children: widget.order.deliveryMissions
+                          .map((mission) =>
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                      margin:
+                                      const EdgeInsets
+                                          .all(2),
+                                      padding:
+                                      const EdgeInsets
+                                          .all(1),
+                                      decoration:
+                                      BoxDecoration(
+                                        color: AppColors
+                                            .blackText,
+                                        shape: BoxShape
+                                            .circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.delivery_dining,
+                                        color:
+                                        AppColors
+                                            .white,
+                                        size: 14.dp,
+                                      )),
+                                  SizedBox(width: 4.dp,),
+                                  Text(mission.status != 'NO_COURIER' ? mission.courierName.split(' ').first : "מחפש שליח",
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.dp, color: AppColors.blackText, fontFamily: 'arimo'),),
+                                  if(mission.status != 'NO_COURIER')...[
+                                    SizedBox(width: 4.dp,),
+                                    GestureDetector(
+                                      child: Icon(Icons.copy, color: AppColors.blackText, size: 14.dp),
+                                      onTap: () {
+                                        Clipboard.setData(ClipboardData(text: mission.courierPhoneNumber));
+                                        showBottomPopup(
+                                          context: context,
+                                          message: "מספר טלפון של השליח הועתק בהצלחה",
+                                          imagePath: "assets/images/warning_icon.png",
+                                        );
+                                      },
                                     ),
-                                    child:
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8.0.dp, vertical: 6.dp),
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.check_circle, color: AppColors.white, size: 12.dp,),
-                                          SizedBox(width: 4.dp,),
-                                          Text("סמן איסוף",
-                                            style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w600, color: AppColors.white),),
-                                        ],
+
+                                    SizedBox(width: 16.dp,),
+                                    TimeToCourierWidget(mission: mission),
+
+                                    if(mission.timeline.courierArrivedToShopper!.isNotEmpty && mission.timeline.orderPickedUp!.isEmpty)...[
+                                      Spacer(),
+                                      GestureDetector(
+                                        onTap: (){
+                                          showCourierPickedUpAlertDialog(context, mission);
+
+                                        },
+                                        child: Container(
+                                          height: 23.dp,
+                                          decoration:  BoxDecoration(
+                                              color: AppColors.primeryColor,
+                                              shape: BoxShape.rectangle,
+                                              borderRadius: BorderRadius.circular(
+                                                  8.dp)
+                                          ),
+                                          child:
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 8.0.dp, vertical: 6.dp),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.check_circle, color: AppColors.white, size: 12.dp,),
+                                                SizedBox(width: 4.dp,),
+                                                Text("סמן איסוף",
+                                                  style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w600, color: AppColors.white),),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ],
+                              ),
+                              if(mission.timeline.courierArrivedToShopper!.isEmpty && mission.timeline.courierScannedWrongBarcode!.isNotEmpty)...[
+                                Row(
+                                  children: [
+                                    Icon(Icons.warning, color: AppColors.redColor, size: 14.dp,),
+                                    SizedBox(width: 8.dp,),
+                                    Text("שליח סרק ברקוד שגוי", style: TextStyle(fontWeight: FontWeight.w600,
+                                        fontSize: 14.dp, color: AppColors.redColor, fontFamily: 'arimo')),
+                                    Spacer(),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        bool response = await TShopperService.updateCourierArrived(missionId: int.parse(mission.id));
+                                      },
+                                      child: Container(
+                                        height: 23.dp,
+                                        decoration:  BoxDecoration(
+                                            color: AppColors.primeryColor,
+                                            shape: BoxShape.rectangle,
+                                            borderRadius: BorderRadius.circular(
+                                                8.dp)
+                                        ),
+                                        child:
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8.0.dp, vertical: 6.dp),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.check_circle, color: AppColors.white, size: 12.dp,),
+                                              SizedBox(width: 4.dp,),
+                                              Text("סמני שליח הגיע",
+                                                style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w600, color: AppColors.white),),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  ],
+                                )
                               ],
+                              Divider(
+                                thickness: 1,
+                                color: AppColors.borderColor,
+                              )
                             ],
-                                                  ],
-                                                ),
-
-                            Divider(
-                              thickness: 1,
-                              color: AppColors.borderColor,
-                            )
-                          ],
-                        ))
-                        .toList(),
-                  ),
+                          ))
+                          .toList(),
+                    ),
+                  ],
                   Column(
                     children: widget.order.orderStores
                         .map((store) => AfterCollectionStoreOrderCard(store: store, order: widget.order, isInProgress: true,

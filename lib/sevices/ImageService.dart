@@ -97,4 +97,40 @@ class ImageService {
     return uniqueId;
   }
 
+  static Future<String> convertVideoToUrl(dynamic bytes) async {
+    if (bytes == null) return '';
+
+    const String apiUrl = '$baseServerUrl/image/uploadVideo';
+    String fileUrl = '';
+
+    try {
+      final http.MultipartRequest fileConversionRequest = http.MultipartRequest(
+        'POST',
+        Uri.parse(apiUrl),
+      );
+
+      fileConversionRequest.files.add(
+        http.MultipartFile.fromBytes(
+          'video',
+          bytes,
+          filename: generateTimestampBasedUUID(),
+        ),
+      );
+
+      final response = await fileConversionRequest.send();
+      final String responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode != 200) {
+        throw Exception('Upload video status: ${response.statusCode}');
+      }
+
+      fileUrl = responseBody;
+    } catch (e) {
+      print('Failed to upload video: $e');
+    }
+
+    return fileUrl;
+  }
+
+
 }

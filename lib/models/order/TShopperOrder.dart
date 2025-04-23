@@ -19,6 +19,7 @@ class TShopperOrder{
   final PriceSummaryTShopper priceSummary;
   List<TShopperOrderStore> orderStores;
   int centerShoppingId;
+  String centerShoppingName;
   List<DeliveryMission> deliveryMissions;
 
   TShopperOrder({
@@ -34,6 +35,7 @@ class TShopperOrder{
     required this.priceSummary,
     required this.centerShoppingId,
     required this.deliveryMissions,
+    required this.centerShoppingName,
   });
 
 
@@ -47,6 +49,7 @@ class TShopperOrder{
       collectionProducts: json['collectionProducts'],
       stickerColor: json['stickerColor'],
       dropOffNumber: json['dropOffNumber'] ?? "",
+      centerShoppingName: json['centerShoppingName'] ?? "",
       numberOfCouriers: json['numberOfCouriers'] ?? 1,
       timeLine: TimelineTShopper.fromJson(json['timeLine']),
       priceSummary: PriceSummaryTShopper.fromJson(json['priceSummary']),
@@ -73,6 +76,7 @@ class TShopperOrder{
     bool? collectionProducts,
     String? stickerColor,
     String? dropOffNumber,
+    String? centerShoppingName,
     TimelineTShopper? timeLine,
     PriceSummaryTShopper? priceSummary,
     List<TShopperOrderStore>? orderStores,
@@ -92,6 +96,7 @@ class TShopperOrder{
       priceSummary: priceSummary ?? this.priceSummary,
       centerShoppingId: centerShoppingId ?? this.centerShoppingId,
       deliveryMissions: deliveryMissions ?? this.deliveryMissions,
+      centerShoppingName: centerShoppingName ?? this.centerShoppingName,
     );
   }
 
@@ -217,14 +222,16 @@ class TShopperOrder{
     int counter = 0;
     if(orderStores.isNotEmpty){
       for(TShopperOrderStore store in orderStores){
-        if(store.paymentRequests != null && store.paymentRequests!.isNotEmpty){
-          for(PaymentRequest payment in store.paymentRequests!){
-            if(payment.status == 'WAITING' || payment.status == 'FAILED'){
-              counter++;
+        if(store.storeStatus != 'CANCELLED'){
+          if(store.paymentRequests != null && store.paymentRequests!.isNotEmpty){
+            for(PaymentRequest payment in store.paymentRequests!){
+              if(payment.status == 'WAITING' || payment.status == 'FAILED'){
+                counter++;
+              }
             }
+          }else{
+            return false;
           }
-        }else{
-          return false;
         }
       }
     }

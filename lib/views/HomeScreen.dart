@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:tshopper_app/models/order/TShopperOrder.dart';
 import 'package:tshopper_app/models/tshopper/TShopper.dart';
 import 'package:tshopper_app/providers/PendingOrderProvider.dart';
@@ -65,10 +67,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
   void initState() {
     super.initState();
     overlayMenu.init(context, this);
-    AblyService.createAblyRealtimeInstance(
-      TShopper.instance.uid,
-      [TShopper.instance.uid, "tShoppersNewOrders-${TShopper.instance.currentShoppingCenterId}"],
-    );
+    if(TShopper.instance.status == 'ONLINE' || TShopper.instance.status == 'ASSIGNED' || TShopper.instance.status == 'WAITING_FOR_PAYMENT' || TShopper.instance.status == 'IN_COLLECTION'){
+      AblyService.createAblyRealtimeInstance(
+        TShopper.instance.uid,
+        [TShopper.instance.uid, "tShoppersNewOrders-${TShopper.instance.currentShoppingCenterId}"],
+      );
+    }
     AblyService.ref = ref;
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(() {
@@ -198,11 +202,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
     });
   }
 
-  final List<String> tabTitles = ['הזמנות חדשות','הזמנות בממתינה', 'הזמנות בהכנה', 'הזמנות מוכנות'];
   late TabController _tabController;
 
   @override
   Widget build(BuildContext context) {
+    if(selectedIndex == 1 && ref.read(newOrderProvider).allNewOrders.isEmpty){
+      selectedIndex = 2;
+    }
     return Scaffold(
       backgroundColor: AppColors.whiteText,
       appBar: AppBar(
@@ -225,6 +231,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                   ),
                 ),
               ),
+            GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: EdgeInsets.all(10),
+                    child: Stack(
+                      children: [
+                        // Rectangle QR container
+                        Container(
+                          width: MediaQuery.sizeOf(context).width * 0.9,
+                          padding: EdgeInsets.all(20.dp),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundColor,
+                            borderRadius: BorderRadius.circular(12.dp),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.dp),
+                                child: CachedNetworkImage(
+                                  imageUrl: TShopper.instance.barcodeImageUrl,
+                                  fit: BoxFit.contain,
+                                  width: 200.dp,
+                                  height: 200.dp,
+                                  placeholder: (context, url) => CupertinoActivityIndicator(
+                                    radius: 15.dp,
+                                    color: AppColors.primeryColor,
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error, color: AppColors.primeryColor),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Close button
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: AppColors.iconLightGrey,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: const Icon(Icons.close, color: Colors.white, size: 20),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.iconLightGrey,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(5),
+                child: Icon(
+                  size: 22.dp,
+                  Icons.qr_code_2,
+                  color: AppColors.whiteText,
+                ),
+              ),
+            ),
           ],
         ),
         backgroundColor: AppColors.whiteText,
@@ -238,6 +317,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             child: Row(
               children: [
                 _buildTab('הזמנות חדשות', ref.read(pendingOrderProvider).allPendingOrders.length, 0),
+                if(ref.read(newOrderProvider).allNewOrders.isNotEmpty)
                 _buildTab('הזמנות בממתינה', ref.read(newOrderProvider).allNewOrders.length, 1),
                 _buildTab('הזמנות בהכנה', ref.read(inPreparationOrderProvider).allInPreparationOrders.length, 2),
                 _buildTab('הזמנות מוכנות', ref.read(readyOrderProvider).allReadyOrders.length, 3),

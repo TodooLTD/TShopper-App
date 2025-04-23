@@ -33,6 +33,8 @@ class _CollectingProductCardState extends State<CollectingProductCard>
   int? selectedQuantity;
   final picker = ImagePicker();
   bool showAddNotes = false;
+  late TextEditingController _notesController;
+
   @override
   void initState() {
     super.initState();
@@ -41,10 +43,12 @@ class _CollectingProductCardState extends State<CollectingProductCard>
       }else{
         selectedQuantity = widget.product.quantity;
       }
+    _notesController = TextEditingController(text: widget.product.shopperNotes ?? "");
   }
 
   @override
   void dispose() {
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -365,7 +369,7 @@ class _CollectingProductCardState extends State<CollectingProductCard>
                       widget.product.shopperNotes = val;
                       widget.onChanged?.call();
                     },
-                    controller: TextEditingController(text: widget.product.shopperNotes ?? ""),
+                    controller: _notesController,
                     decoration: InputDecoration(
                       hintText: "כתבי הערה",
                       hintStyle: TextStyle(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:tshopper_app/models/tshopper/TShopper.dart';
 import 'package:tshopper_app/sevices/TShopperService.dart';
 import 'package:tshopper_app/views/HomeScreen.dart';
@@ -44,7 +45,7 @@ class SplashScreenState extends ConsumerState<SplashScreen>
           Timer(const Duration(seconds: 3), () async {
             if (!mounted) return;
             if (true) {
-              // OneSignal.login(managerUid);
+              OneSignal.login(uid);
 
               TShopper? shopper = await TShopperService.fetchShopper(uid);
               if(shopper == null){

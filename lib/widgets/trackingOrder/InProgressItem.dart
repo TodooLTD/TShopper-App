@@ -184,7 +184,7 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
                                         size: 14.dp,
                                       )),
                                   SizedBox(width: 4.dp,),
-                                  Text(mission.status != 'NO_COURIER' ? mission.courierName.split(' ').first : "מחפשים שליח עבור ההזמנה",
+                                  Text(mission.status != 'NO_COURIER' ? mission.courierName.split(' ').first : "מחפש שליח",
                                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.dp, color: AppColors.blackText, fontFamily: 'arimo'),),
                                   if(mission.status != 'NO_COURIER')...[
                                     SizedBox(width: 16.dp,),

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:photo_view/photo_view.dart';
 import '../../constants/AppColors.dart';
 import '../../constants/AppFontSize.dart';
 import '../../models/order/ProductTShopperOrder.dart';
@@ -158,27 +159,89 @@ class _ProductTShopperOrderCardState extends State<ProductTShopperOrderCard>
                       ),
                       Padding(
                         padding: EdgeInsets.all(3.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15.dp),
-                          child: SizedBox(
-                            height: 55.dp,
-                            width:55.dp,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: 0.0.dp,
-                                  right: 0.dp),
-                              child: CachedNetworkImage(
-                                errorWidget: (context, url, error) =>
-                                    Container(),
-                                fit: BoxFit.contain,
-                                imageUrl:
-                                widget.product.customerUploadedImage
-                                ,
-                                placeholder: (context, url) => Center(
-                                  child: CupertinoActivityIndicator(
-                                    animating: true,
-                                    color: AppColors.primeryColor,
-                                    radius: 15.dp,
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => Dialog(
+                                backgroundColor: Colors.transparent,
+                                insetPadding: EdgeInsets.all(10),
+                                child: Stack(
+                                  children: [
+                                    // Image with zoom
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.backgroundColor,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: PhotoView(
+                                          backgroundDecoration: BoxDecoration(
+                                              color: AppColors.whiteText
+                                          ),
+                                          imageProvider: CachedNetworkImageProvider(
+                                            widget.product.customerUploadedImage,
+                                          ),
+                                          loadingBuilder: (context, event) => Center(
+                                            child: CupertinoActivityIndicator(
+                                              animating: true,
+                                              color: AppColors.primeryColor,
+                                              radius: 15.dp,
+                                            ),
+                                          ),
+                                          errorBuilder: (context, error, stackTrace) => const Center(
+                                            child: Icon(Icons.error, color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // X button to close
+                                    Positioned(
+                                      top: 5,
+                                      right: 5,
+                                      child: GestureDetector(
+                                        onTap: () => Navigator.of(context).pop(),
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.iconLightGrey,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          child: const Icon(Icons.close, color: Colors.white, size: 20),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(1.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15.dp),
+                              child: Container(
+                                height: 65.dp,
+                                width: 65.dp,
+                                decoration: BoxDecoration(
+                                  color: AppColors.whiteText,
+                                  borderRadius: BorderRadius.circular(8.dp),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 0.0.dp, right: 0.dp),
+                                  child: CachedNetworkImage(
+                                    errorWidget: (context, url, error) => Container(),
+                                    fit: BoxFit.contain,
+                                    imageUrl: widget.product.customerUploadedImage,
+                                    placeholder: (context, url) => Center(
+                                      child: CupertinoActivityIndicator(
+                                        animating: true,
+                                        color: AppColors.primeryColor,
+                                        radius: 15.dp,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

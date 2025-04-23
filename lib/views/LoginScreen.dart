@@ -202,12 +202,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
       // Successfully signed in
       User? user = userCredential.user;
-      print("here");
-      print(user == null);
 
       if (user != null) {
-        print(user.uid);
-        // OneSignal.login(user.uid);
+        OneSignal.login(user.uid);
         //
         TShopper? shopper = await TShopperService.fetchShopper(user.uid);
         if(shopper == null){

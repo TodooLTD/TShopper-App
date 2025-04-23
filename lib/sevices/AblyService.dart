@@ -79,10 +79,13 @@ class AblyService {
         String estimatedDeliveryTime = "";
         String notes = "";
         int minutesToBeReady = 0;
-        if(orderStatus == "PENDING"){
+        if(orderStatus == "PENDING" || orderStatus == 'UNASSIGNED'){
           TShopperOrder? newPendingOrder = await TShopperService.getOrder(orderId);
           if (newPendingOrder != null) {
             ref.read(pendingOrderProvider.notifier).addOrder(newPendingOrder);
+          }
+          if(orderStatus == 'UNASSIGNED'){
+            ref.read(newOrderProvider.notifier).deleteOrder(orderId);
           }
         }
         if(orderStatus == "PENDING-ASSIGN"){
@@ -96,6 +99,9 @@ class AblyService {
               name,
               0,
               "");
+        }
+        if(orderStatus == "UNASSIGNED_SHOPPER"){
+          ref.read(newOrderProvider.notifier).deleteOrder(orderId);
         }
         if(orderStatus == "ON_HOLD"){
           String name = ablyUpdate.data['name'];
@@ -137,7 +143,8 @@ class AblyService {
             ref.read(inPreparationOrderProvider.notifier).deleteOrder(orderId);
           }
         }
-        if (orderStatus == "COURIER_ARRIVED_TO_SHOPPER" || orderStatus == "COURIER_ASSIGN" || orderStatus == "COURIER_ARRIVED") {
+        if (orderStatus == "COURIER_ARRIVED_TO_SHOPPER" || orderStatus == "COURIER_ASSIGN" || orderStatus == "COURIER_ARRIVED"
+            || orderStatus == 'SPLIT' || orderStatus == 'WRONG_BARCODE') {
           int currentOrderIndex =
           ref.read(inPreparationOrderProvider).allInPreparationOrders.indexWhere(
                 (person) => person.orderId == orderId,
