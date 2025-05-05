@@ -104,7 +104,7 @@ class _AfterCollectionStoreOrderCardState extends State<AfterCollectionStoreOrde
                     ),
                     padding:  EdgeInsets.symmetric(horizontal :8.dp, vertical:3.dp ),
                     child:
-                    Text("${widget.store.getAmount(widget.order.collectionProducts)}", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                    Text("${widget.store.getAmount()}", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
                         fontFamily: 'arimo', fontWeight: FontWeight.w900, color: AppColors.white),),
                   ),
                   Text("  מוצרים", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,  fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),

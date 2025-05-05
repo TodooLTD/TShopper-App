@@ -8,6 +8,7 @@ import '../models/ably/AblyUpdate.dart';
 import '../providers/InPreparationOrderProvider.dart';
 import '../providers/NewOrderProvider.dart';
 import '../providers/ReadyOrderProvider.dart';
+import '../providers/conversationProvider.dart';
 
 class AblyService {
   static ably.Realtime? realtimeInstance;
@@ -24,7 +25,7 @@ class AblyService {
       return;
     }
 
-    var clientOptions = ably.ClientOptions.fromKey("f-DbRg.ztB_rQ:mDMNF37u4rj1u54fguodfBOp541zI6EvLWRUtDK1pdY");
+    var clientOptions = ably.ClientOptions(key: "f-DbRg.ztB_rQ:mDMNF37u4rj1u54fguodfBOp541zI6EvLWRUtDK1pdY");
 
     clientOptions.clientId = businessId;
     try {
@@ -60,6 +61,16 @@ class AblyService {
     print("handleOrderUpdateEvent $eventName");
 
     switch (eventName) {
+      case "new-message":
+        String orderId = ablyUpdate.data['orderId'];
+        try {
+          if(ref.read(conversationProvider).currentConversation != null &&
+              ref.read(conversationProvider).currentConversation!.orderId == orderId){
+            ref.read(conversationProvider.notifier).newMessage(orderId);
+          }
+        } catch (error, stackTrace) {
+        }
+        break;
       case "new-order":
         String orderId = ablyUpdate.data['order'];
         TShopperOrder? newOrder = await TShopperService.getOrder(orderId);
@@ -68,6 +79,7 @@ class AblyService {
           ref.read(newOrderProvider.notifier).addOrder(newOrder);
         }
         break;
+
       case "payment-update":
         String orderId = ablyUpdate.data['order'];
         String status = ablyUpdate.data['status'];
@@ -144,7 +156,8 @@ class AblyService {
           }
         }
         if (orderStatus == "COURIER_ARRIVED_TO_SHOPPER" || orderStatus == "COURIER_ASSIGN" || orderStatus == "COURIER_ARRIVED"
-            || orderStatus == 'SPLIT' || orderStatus == 'WRONG_BARCODE') {
+            || orderStatus == 'SPLIT' || orderStatus == 'WRONG_BARCODE' || orderStatus == "DELIVERY_MISSION_ORDER" || orderStatus == 'STORE_CANCELLED' ||
+        orderStatus == 'STORE_READY') {
           int currentOrderIndex =
           ref.read(inPreparationOrderProvider).allInPreparationOrders.indexWhere(
                 (person) => person.orderId == orderId,

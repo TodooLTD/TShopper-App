@@ -31,7 +31,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   final FocusNode _passwordFocusNode = FocusNode();
   bool _isPasswordVisible = false;
 
-  OverlayEntry? overlayEntry;
   late AnimationController animationController;
   late Animation<Offset> positionAnimation;
 
@@ -53,8 +52,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     );
     animationController.addStatusListener((status) {
       if (status == AnimationStatus.dismissed) {
-        overlayEntry?.remove();
-        overlayEntry = null;
       }
     });
   }
@@ -125,10 +122,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                     child: Column(
                       children: <Widget>[
                         SizedBox(height: 40.dp),
-                        Image.asset(isLightMode ? "assets/images/managers.png" : "assets/images/managersDark.png", width: MediaQuery
+                        Image.asset(isLightMode ? "assets/images/shopperLight.png" : "assets/images/shopperDark.png", width: MediaQuery
                             .of(context)
                             .size
-                            .width * 0.9,),
+                            .width * 0.8,),
                         SizedBox(height: 30.dp),
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.8,

@@ -1,6 +1,7 @@
 
 import 'PaymentRequest.dart';
 import 'ProductTShopperOrder.dart';
+import 'StoreTimeline.dart';
 
 class TShopperOrderStore {
   int id;
@@ -15,6 +16,7 @@ class TShopperOrderStore {
   String invoiceImageUrls;
   int numberOfCouriers;
   List<PaymentRequest>? paymentRequests;
+  StoreTimeline timeLine;
 
   TShopperOrderStore({
     required this.id,
@@ -29,6 +31,7 @@ class TShopperOrderStore {
     required this.exchangeReceipt,
     required this.invoiceImageUrls,
     required this.numberOfCouriers,
+    required this.timeLine,
   });
 
   factory TShopperOrderStore.fromJson(Map<String, dynamic> json) {
@@ -50,6 +53,7 @@ class TShopperOrderStore {
           [],
         storeId:  json['storeId'] ?? 0,
       numberOfCouriers:  json['numberOfCouriers'] ?? 0,
+      timeLine: StoreTimeline.fromJson(json['timeLine']),
       paymentRequests: json['paymentRequests'] != null ? List<PaymentRequest>.from(
         json['paymentRequests'].map(
               (x) => PaymentRequest.fromJson(x),
@@ -67,11 +71,11 @@ class TShopperOrderStore {
     };
   }
 
-  int getAmount(bool isCollected) {
+  int getAmount() {
     int counter = 0;
         if(products.isNotEmpty){
           for(ProductTShopperOrder productOrder in products){
-            if(isCollected) {
+            if(timeLine.doneCollecting!.isNotEmpty) {
               counter += productOrder.collectQuantity;
             } else {
               counter += productOrder.quantity;

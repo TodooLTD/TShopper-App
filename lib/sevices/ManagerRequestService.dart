@@ -16,6 +16,8 @@ class ManagerRequestService {
 
     final response = await http.post(uri, headers: headers, body: jsonBody);
 
+    print(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200 || response.statusCode == 201) {
       final String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> jsonResponse = jsonDecode(responseBody);

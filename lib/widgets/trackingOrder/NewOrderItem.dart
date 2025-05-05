@@ -171,7 +171,7 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                   ),
                   Column(
                     children: widget.order.orderStores
-                        .map((store) => StoreOrderCard(store: store, order: widget.order,))
+                        .map((store) => StoreOrderCard(store: store, order: widget.order, isInProgress: false))
                         .toList(),
                   ),
                   SizedBox(height: 8.dp),
@@ -195,7 +195,7 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                         flex: 1,
                         child: SizedBox(
                           child: CustomElevatedButton(
-                              backgroundColor: AppColors.lightStrongRed.withOpacity(0.8),
+                              backgroundColor: AppColors.lightStrongRed.withValues(alpha: 0.8),
                               titleColor: AppColors.white,
                               title: "סרב",
                               onPressed: () async {

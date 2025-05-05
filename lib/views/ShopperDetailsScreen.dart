@@ -13,6 +13,7 @@ import '../sevices/AblyService.dart';
 import '../sevices/HelpCenterService.dart';
 import '../widgets/overlayMenu/OverlayMenu.dart';
 import '../widgets/shopperDetails/DisabledTextFieldWidget.dart';
+import '../widgets/socialScreen/SocialHelpers.dart';
 import '../widgets/trackingOrder/CustomElevatedButton.dart';
 import 'DeleteAccountScreen.dart';
 import 'LoginScreen.dart';
@@ -99,26 +100,24 @@ class _ShopperDetailsScreenState extends ConsumerState<ShopperDetailsScreen> wit
                           gradient: LinearGradient(
                             colors: [
                               colorMap[TShopper.instance.color] ?? AppColors.mediumGreyText,
-                              (colorMap[TShopper.instance.color] ?? AppColors.mediumGreyText).withOpacity(0.2),
+                              (getGradientColor(TShopper.instance.color)),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                         ),
                         child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              TShopper.instance.firstName[0]+ TShopper.instance.lastName[0],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'todoFont',
-                                fontSize: 24.dp,
-                                color: AppColors.whiteText,
-                                fontWeight: FontWeight.w800,
-                              ),
+                          child: TShopper.instance.imageUrl.isEmpty ? Text(
+                            TShopper.instance.firstName[0]+TShopper.instance.lastName[0],
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'todoFont',
+                              fontSize: 24.dp,
+                              color: AppColors.whiteText,
+                              fontWeight: FontWeight.w800,
                             ),
-                          ),
+                          ) : Image.network(TShopper.instance.imageUrl,
+                              fit: BoxFit.cover),
                         ),
                       ),
                       SizedBox(width: 16.dp,),

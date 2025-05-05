@@ -232,7 +232,7 @@ class _EditShiftWidgetState extends ConsumerState<EditShiftWidget>
           ),
         ),
         SizedBox(height: 32.dp,),
-        if(isEditing)
+        if(isEditing && isBeforeDate(widget.shift!.date))
         Padding(
           padding:  EdgeInsets.symmetric(horizontal: 16.0.dp),
           child: Row(
@@ -320,7 +320,7 @@ class _EditShiftWidgetState extends ConsumerState<EditShiftWidget>
             ],
           ),
         ),
-        if(!isEditing)
+        if(!isEditing && isBeforeDate(widget.shift!.date))
           Padding(
             padding:  EdgeInsets.symmetric(horizontal: 16.0.dp),
             child: Row(
@@ -440,6 +440,11 @@ class _EditShiftWidgetState extends ConsumerState<EditShiftWidget>
   String _getFormattedDate(String dateStr) {
     final date = DateTime.parse(dateStr);
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+  }
+
+  bool isBeforeDate(String dateStr) {
+    final date = DateTime.parse(dateStr);
+    return date.isBefore(DateTime.now()) || date.isAtSameMomentAs(DateTime.now());
   }
 
   String _getHebrewWeekday(String dateStr) {

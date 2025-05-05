@@ -76,8 +76,8 @@ class TimelineTShopper {
       orderRefused: json['orderRefused'] ?? "",
       courierAssigned: json['courierAssigned'] ?? "",
       cancelReason: json['cancelReason'] ?? "",
-      ShopperNameSeenBy: json['shopperNameSeenBy'] ?? "",
-      ShopperNameConfirmedBy: json['shopperNameConfirmedBy'] ?? "",
+      ShopperNameSeenBy: json['ShopperNameSeenBy'] ?? "",
+      ShopperNameConfirmedBy: json['ShopperNameConfirmedBy'] ?? "",
       ShopperIdSeenBy: json['ShopperIdSeenBy'] ?? 0,
       ShopperIdConfirmedBy: json['ShopperIdConfirmedBy'] ?? 0,
     );

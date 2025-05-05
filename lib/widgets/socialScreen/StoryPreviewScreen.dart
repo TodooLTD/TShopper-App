@@ -16,8 +16,9 @@ import '../appBars/CustomAppBarOnlyBack.dart';
 
 class StoryPreviewScreen extends StatefulWidget {
   final List<XFile> selectedImages;
+  final Function(SocialContent) onUploaded;
 
-  const StoryPreviewScreen({super.key, required this.selectedImages});
+  const StoryPreviewScreen({super.key, required this.selectedImages, required this.onUploaded});
 
   @override
   State<StoryPreviewScreen> createState() => _StoryPreviewScreenState();
@@ -177,6 +178,7 @@ class _StoryPreviewScreenState extends State<StoryPreviewScreen> {
                 isLoading = false;
               });
               if(uploaded != null){
+                widget.onUploaded(uploaded);
                 showBottomPopup(
                   context: context,
                   message: "סטורי עלה בהצלחה",

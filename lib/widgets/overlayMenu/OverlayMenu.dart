@@ -6,6 +6,7 @@ import 'package:tshopper_app/views/ShiftsScreen.dart';
 import '../../constants/AppColors.dart';
 import '../../constants/AppFontSize.dart';
 import '../../sevices/HelpCenterService.dart';
+import '../../views/AllConversationsScreen.dart';
 import '../../views/MessagesAndRequestsScreen.dart';
 import '../../views/ShiftSelectionPage.dart';
 import '../../views/ShopperDetailsScreen.dart';
@@ -151,64 +152,68 @@ class OverlayMenu {
                                   context: context,
                                   "assets/images/iconOrders.png",
                                   "הזמנות",
-                                  onTap: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => HomeScreen()));
-                                  },
+                                  // onTap: () {
+                                  //   Navigator.pushReplacement(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //           builder: (context) => HomeScreen()));
+                                  // },
+                                  screenBuilder: (context) => HomeScreen(),
                                 ),
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconStory.png",
                                 "סושיאל",
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SocialScreen()));
-                                },
+                                // onTap: () {
+                                //   Navigator.pushReplacement(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) => SocialScreen()));
+                                // },
+                                screenBuilder: (context) => SocialScreen(),
                               ),
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconChat.png",
                                 "צאט",
-                                onTap: () {
-                                  HelpCenterService.openHelpCenterPopup();
-                                },
-                              ),
+                                  screenBuilder: (context) => AllConversationsScreen(),
+
+                ),
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconMessages.png",
                                 "פניות ועדכונים",
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MessagesAndRequestsScreen()));
-                                },
+                                // onTap: () {
+                                //   Navigator.pushReplacement(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) => MessagesAndRequestsScreen()));
+                                // },
+                                screenBuilder: (context) => MessagesAndRequestsScreen(),
                               ),
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconWorkersManager.png",
                                 "משמרות",
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ShiftsScreen()));
-                                },
+                                // onTap: () {
+                                //   Navigator.pushReplacement(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) => ShiftsScreen()));
+                                // },
+                                screenBuilder: (context) => ShiftsScreen(),
                               ),
                               _buildCircleButton(
                                 context: context,
                                 "assets/images/iconDetails.png",
                                 "אזור אישי",
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ShopperDetailsScreen()));
-                                },
+                                // onTap: () {
+                                //   Navigator.pushReplacement(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) => ShopperDetailsScreen()));
+                                // },
+                                screenBuilder: (context) => ShopperDetailsScreen(),
                               ),
                             ],
                           ),
@@ -237,15 +242,11 @@ class OverlayMenu {
       children: <Widget>[
         InkWell(
           onTap: () {
-            closeOverlay();
             if (onTap != null) {
               Future.delayed(const Duration(milliseconds: 300), onTap);
-            } else if (screenBuilder != null && context.mounted) {
-              Future.delayed(const Duration(milliseconds: 300), () {
-                if (context.mounted) { // ✅ Check before calling Navigator
-                  Navigator.of(context).push(MaterialPageRoute(builder: screenBuilder));
-                }
-              });
+            } else if (screenBuilder != null) {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: screenBuilder));
+              closeOverlay();
             }
           },
           child: Material(
@@ -273,5 +274,4 @@ class OverlayMenu {
       ],
     );
   }
-
 }

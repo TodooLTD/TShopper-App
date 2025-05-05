@@ -13,6 +13,8 @@ class TShopper {
   final String status;
   final String barcodeCode;
   final String barcodeImageUrl;
+  final String type;
+  final String imageUrl;
   double totalHours = 0;
   int totalDays = 0;
 
@@ -30,6 +32,8 @@ class TShopper {
     required this.status,
     required this.barcodeCode,
     required this.barcodeImageUrl,
+    required this.type,
+    required this.imageUrl,
   });
 
   static clear() {
@@ -58,6 +62,8 @@ class TShopper {
       status: json['status'] ?? "",
       barcodeCode: json['barcodeCode'] ?? "",
       barcodeImageUrl: json['barcodeImageUrl'] ?? "",
+      type: json['type'] ?? "",
+      imageUrl: json['imageUrl'] ?? "",
     );
   }
 }

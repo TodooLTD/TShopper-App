@@ -7,11 +7,16 @@ import 'package:tshopper_app/models/order/TShopperOrder.dart';
 import 'package:tshopper_app/sevices/TShopperService.dart';
 import '../constants/AppColors.dart';
 import '../constants/AppFontSize.dart';
+import '../main.dart';
+import '../models/conversation/Conversation.dart';
 import '../models/order/TShopperOrderStore.dart';
+import '../providers/conversationProvider.dart';
+import '../sevices/ConversationService.dart';
 import '../widgets/appBars/CustomAppBarOnlyBack.dart';
 import '../widgets/collectingProducts/CollectingProductCard.dart';
 import '../widgets/collectingProducts/MissingProductCard.dart';
 import '../widgets/popup/BottomPopup.dart';
+import 'ConversationScreen.dart';
 
 class CollectingProductsScreen extends ConsumerStatefulWidget {
   TShopperOrder order;
@@ -181,9 +186,43 @@ class _CollectingProductsScreenState
                                 ))
                             .toList(),
                       ),
+                      if (widget.store.customerNotes != "" &&
+                          widget.store.customerNotes != null)...[
+                        SizedBox(height: 8.dp,),
+                        Row(
+                          children: [
+                            Image.asset(
+                              "assets/images/warning_icon.png",
+                              width: 16.dp,
+                              height: 16.dp,
+                            ),
+                            SizedBox(width: 8.dp,),
+                            Text("הערת לקוח:", style: TextStyle(
+                                color: AppColors.blackText,
+                                fontSize: 14.dp,
+                                fontWeight: FontWeight.w800
+                            ),)
+                          ],
+                        ),
+                        SizedBox(
+                          width: 100.w,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 10),
+                            child: Text(
+                              widget.store.customerNotes,
+                              style: TextStyle(
+                                  color: isLightMode ? AppColors.darkGrey : AppColors.white,
+                                  fontSize: AppFontSize.fontSizeExtraSmall,
+                                  fontFamily: 'arimo'
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                       if (widget.order.getIsLastCollection() || widget.store.numberOfCouriers > 0) ...[
                         SizedBox(
-                          height: 16.dp,
+                          height: 8.dp,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -354,16 +393,39 @@ class _CollectingProductsScreenState
             SizedBox(width: 8.dp),
             Expanded(
               flex: 1,
-              child: Container(
-                height: 50.dp,
-                decoration: BoxDecoration(
-                  color: AppColors.primeryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10.dp),
-                ),
-                child: Center(
-                  child: Image.asset(
-                    "assets/images/iconChat.png",
-                    height: 38.dp,
+              child: GestureDetector(
+                onTap: () async{
+                  ref.read(conversationProvider).currentConversation = null;
+                  Conversation? conversation = await ConversationService.getConversationByOrderId(widget.order.orderId);
+                  if(conversation != null && conversation.status == 'OPEN'){
+                    ref.read(conversationProvider).currentConversation = conversation;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ConversationScreen(),
+                      ),
+                    );
+                  }else{
+                    showBottomPopup(
+                      duration: const Duration(
+                          seconds: 2),
+                      context: context,
+                      message: "צ׳אט לא זמין בשלב זה של ההזמנה",
+                      imagePath: "assets/images/warning_icon.png",
+                    );
+                  }
+                },
+                child: Container(
+                  height: 50.dp,
+                  decoration: BoxDecoration(
+                    color: AppColors.primeryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10.dp),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      "assets/images/iconChat.png",
+                      height: 38.dp,
+                    ),
                   ),
                 ),
               ),

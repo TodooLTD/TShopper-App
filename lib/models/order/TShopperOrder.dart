@@ -41,6 +41,12 @@ class TShopperOrder{
 
 
   factory TShopperOrder.fromJson(Map<String, dynamic> json) {
+    List<TShopperOrderStore> stores = List<TShopperOrderStore>.from(
+      json['orderStores'].map(
+            (x) => TShopperOrderStore.fromJson(x),
+      ),
+    );
+    stores.sort((a,b) => a.id.compareTo(b.id));
     return TShopperOrder(
       orderNumber: json['orderNumber'],
       centerShoppingId: json['centerShoppingId'] ?? 0,
@@ -53,12 +59,7 @@ class TShopperOrder{
       numberOfCouriers: json['numberOfCouriers'] ?? 1,
       timeLine: TimelineTShopper.fromJson(json['timeLine']),
       priceSummary: PriceSummaryTShopper.fromJson(json['priceSummary']),
-      orderStores: List<TShopperOrderStore>.from(
-        json['orderStores'].map(
-              (x) => TShopperOrderStore.fromJson(x),
-        ),
-      ) ??
-          [],
+      orderStores: stores,
       deliveryMissions: List<DeliveryMission>.from(
         json['deliveryMissions'].map(
               (x) => DeliveryMission.fromJson(x),

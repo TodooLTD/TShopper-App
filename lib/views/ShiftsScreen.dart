@@ -7,6 +7,9 @@ import 'package:tshopper_app/widgets/shift/ShopperShiftsWidget.dart';
 import '../constants/AppColors.dart';
 import '../constants/AppFontSize.dart';
 import '../main.dart';
+import '../models/shift/ShopperShift.dart';
+import '../models/tshopper/TShopper.dart';
+import '../sevices/ShiftService.dart';
 import '../widgets/overlayMenu/OverlayMenu.dart';
 import '../widgets/shift/TimesheetWidget.dart';
 
@@ -21,10 +24,56 @@ class ShiftsScreen extends ConsumerStatefulWidget {
 class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProviderStateMixin {
   final OverlayMenu overlayMenu = OverlayMenu();
   int selectedIndex = 0;
+  List<ShopperShift> fetchedShifts = [];
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
     overlayMenu.init(context, this);
+    _fetchAssignedShifts();
+  }
+
+  Future<void> _fetchAssignedShifts() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final weekDates = _generateNextWeekDates();
+    final from = weekDates.first;
+    final to = weekDates.last;
+
+    try {
+      final shifts = await ShiftService.getAvailabilityShiftsByShopper(
+        shoppingCenterId: TShopper.instance.currentShoppingCenterId,
+        shopperId: TShopper.instance.uid,
+        from: from,
+        to: to,
+      );
+
+      fetchedShifts = List<ShopperShift>.from(shifts);
+
+    } catch (e) {
+      print("Error fetching shifts: $e");
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  List<DateTime> _generateNextWeekDates() {
+    final now = DateTime.now();
+
+    // If today is Sunday, move to next Sunday
+    final bool isTodaySunday = now.weekday == DateTime.sunday;
+
+    final int daysUntilNextSunday = isTodaySunday
+        ? 7
+        : (DateTime.sunday - now.weekday + 7) % 7;
+
+    final nextSunday = now.add(Duration(days: daysUntilNextSunday));
+
+    return List.generate(7, (i) => nextSunday.add(Duration(days: i)));
   }
 
   Map<String, Color> colorMap = {
@@ -72,7 +121,18 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
           backgroundColor: AppColors.whiteText,
           elevation: 0,
         ),
-        body: Padding(
+        body: isLoading ?
+        Container(
+          color: AppColors.whiteText,
+          child: Center(
+            child: CupertinoActivityIndicator(
+              animating: true,
+              color: AppColors.blackText,
+              radius: 15.dp,
+            ),
+          ),
+        )
+        : Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0.dp),
           child: Stack(
             children: [
@@ -158,7 +218,6 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
                   right: 10.dp,
                   child: GestureDetector(
                     onTap: () async {
-                      DateTime now = DateTime.now();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -171,15 +230,15 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
                       height: 45.dp,
                       width: MediaQuery.sizeOf(context).width * 0.92,
                       decoration: BoxDecoration(
-                        color: AppColors.primeryColor,
+                        color: fetchedShifts.isEmpty ? AppColors.primeryColor : AppColors.superLightPurple,
                         borderRadius: BorderRadius.circular(10.dp),
                         border: Border.all(
-                          color: AppColors.primeryColor,
+                          color: fetchedShifts.isEmpty ? AppColors.primeryColor : AppColors.superLightPurple,
                           width: 1.dp,
                         ),
                       ),
-                      child: Center(child: Text("הגשת משמרות", style:
-                      TextStyle(fontSize: 13.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w900, color: AppColors.white)),
+                      child: Center(child: Text(fetchedShifts.isEmpty ? "הגשת משמרות" : "עריכת משמרות", style:
+                      TextStyle(fontSize: 13.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w900, color: fetchedShifts.isEmpty ? AppColors.white : AppColors.primeryColor)),
                       ),
                     ),
                   ),
@@ -261,7 +320,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
     final weekday = now.weekday; // 1 = Monday, 7 = Sunday
     final hour = now.hour;
 
-    if (weekday == DateTime.sunday && hour < 9) return true; // Sunday until 09:00
+    if (weekday == DateTime.sunday && hour > 9) return true; // Sunday until 09:00
     if (weekday >= DateTime.monday && weekday <= DateTime.wednesday) return true; // Monday–Wednesday all day
     return false;
   }

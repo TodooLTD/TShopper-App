@@ -16,11 +16,15 @@ import '../../../constants/AppFontSize.dart';
 import '../../constants/AppColors.dart';
 import '../../widgets/appBars/CustomAppBar.dart';
 import '../main.dart';
+import '../models/socialContenct/Comment.dart';
 import '../models/socialContenct/SocialContent.dart';
 import '../sevices/ImageService.dart';
 import '../widgets/overlayMenu/OverlayMenu.dart';
 import '../widgets/popup/BottomPopup.dart';
+import '../widgets/socialScreen/ReelFullScreenViewer.dart';
 import '../widgets/socialScreen/SmallReelPlayer.dart';
+import '../widgets/socialScreen/SocialHelpers.dart';
+import '../widgets/socialScreen/StoryFullScreenViewer.dart';
 import '../widgets/socialScreen/StoryPreviewScreen.dart';
 
 class SocialScreen extends ConsumerStatefulWidget {
@@ -38,6 +42,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
   List<SocialContent> contents = [];
   List<SocialContent> reels = [];
   List<SocialContent> stories = [];
+  List<PageController> _controllers = [];
 
 
   @override
@@ -55,6 +60,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
     contents = await SocialContentService.getByTypeAndShopper(type: 'REEL', shopperId: TShopper.instance.uid);
     List<SocialContent> stories = await SocialContentService.getByTypeAndShopper(type: 'STORY', shopperId: TShopper.instance.uid);
     contents.addAll(stories);
+    _controllers = stories.map((_) => PageController()).toList();
 
     setState(() {
       isLoading = false;
@@ -222,7 +228,14 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => StoryPreviewScreen(selectedImages: images),
+            builder: (context) => StoryPreviewScreen(selectedImages: images,
+              onUploaded: (newContent) {
+              setState(() {
+                contents.add(newContent);
+                stories.add(newContent);
+                _controllers = stories.map((_) => PageController()).toList();
+              });
+            },),
           ),
         );
       }
@@ -248,7 +261,14 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ReelPreviewScreen(videoFile: video),
+                builder: (context) => ReelPreviewScreen(
+                  videoFile: video,
+                  onUploaded: (newContent) {
+                    setState(() {
+                      contents.add(newContent);
+                      reels.add(newContent);
+                    });
+                  },),
               ),
             );
         } else {
@@ -430,110 +450,238 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
         itemCount: stories.length,
         itemBuilder: (context, index) {
           SocialContent story = stories[index];
-          PageController pageController = PageController();
+          PageController pageController = _controllers[index];
 
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.dp),
-                child: Stack(
-                  children: [
-                    PageView.builder(
-                      controller: pageController,
-                      itemCount: story.urls.length,
-                      itemBuilder: (_, imgIndex) {
-                        return Image.network(
-                          story.urls[imgIndex],
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
-                    Positioned(
-                      bottom: 6.dp,
-                      left: 0,
-                      right: 0,
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => StoryFullScreenViewer(
+                  stories: stories,
+                  initialIndex: index,
+                ),
+              ));
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8.dp),
+                  child: Stack(
+                    children: [
+                      PageView.builder(
+                        controller: pageController,
+                        itemCount: story.urls.length,
+                        itemBuilder: (_, imgIndex) {
+                          return Image.network(
+                            story.urls[imgIndex],
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
+                      Positioned(
+                        bottom: 6.dp,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: SmoothPageIndicator(
+                            controller: pageController,
+                            count: story.urls.length,
+                            effect: WormEffect(
+                              dotColor: Colors.white30,
+                              activeDotColor: Colors.white,
+                              dotHeight: 6.dp,
+                              dotWidth: 6.dp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 8.dp,
+                  right: 8.dp,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 30.dp,
+                        height: 30.dp,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              colorMap[TShopper.instance.color] ?? AppColors.mediumGreyText,
+                              (getGradientColor(TShopper.instance.color)),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Center(
+                          child: TShopper.instance.imageUrl.isEmpty ? Text(
+                            TShopper.instance.firstName[0]+TShopper.instance.lastName[0],
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'todoFont',
+                              fontSize: 18.dp,
+                              color: AppColors.whiteText,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ) : Image.network(TShopper.instance.imageUrl,
+                              fit: BoxFit.cover),
+                        ),
+                      ),
+                      SizedBox(width: 8.dp),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${TShopper.instance.firstName} | ${TShopper.instance.type}",
+                            style: TextStyle(
+                              fontFamily: 'todofont',
+                              fontSize: 14.dp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
+                          ),
+                          if(story.description.isNotEmpty)...[
+                            SizedBox(height: 2.dp,),
+                            Text(
+                              story.description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'arimo',
+                                fontSize: 11.dp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+
+                ),
+                //likes, comments, views
+                Positioned(
+                  bottom: 140.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 12.dp,
+                      ),
+                      SizedBox(height: 4.dp,),
+                      Text(getLikesCount(story), style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'arimo',
+                          fontSize: 11.dp, color: AppColors.white),)
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 100.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/chatImage.png",
+                        height: 12.dp,
+                        width: 12.dp,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(height: 4.dp),
+                      Text(
+                        getCommentsCount(story),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'arimo',
+                          fontSize: 11.dp,
+                          color: AppColors.white,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 60.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Image.asset("assets/images/playImage.png", height: 12.dp, width: 12.dp, fit: BoxFit.contain,),
+                      SizedBox(height: 4.dp,),
+                      Text(story.viewedByUserIds.length.toString(), style: TextStyle(fontWeight: FontWeight.w600,
+                          fontFamily: 'arimo', fontSize: 11.dp, color: AppColors.white),)
+                    ],
+                  ),
+                ),
+                if (!story.verified)
+                  IgnorePointer(
+                    ignoring: true,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(8.dp),
+                      ),
                       child: Center(
-                        child: SmoothPageIndicator(
-                          controller: pageController,
-                          count: story.urls.length,
-                          effect: WormEffect(
-                            dotColor: Colors.white30,
-                            activeDotColor: Colors.white,
-                            dotHeight: 6.dp,
-                            dotWidth: 6.dp,
+                        child: Text(
+                          "ממתין לאישור",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.dp,
+                            fontFamily: 'arimo',
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 8.dp,
-                right: 8.dp,
-                child: Row(
-                  children: [
-                    Icon(Icons.remove_red_eye_outlined, color: AppColors.white, size: 16.dp),
-                    SizedBox(width: 8.dp),
-                    Text(
-                      story.viewedByUserIds.length.toString(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13.dp,
-                        fontFamily: 'arimo',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (!story.verified)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8.dp),
                   ),
-                  child: Center(
-                    child: Text(
-                      "ממתין לאישור",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.dp,
-                        fontFamily: 'arimo',
+                Positioned(
+                  top: -7.dp,
+                  left: -9.dp,
+                  child: GestureDetector(
+                    onTap: () {
+                      showAreYouSurePopup(context, story);
+                    },
+                    child: Container(
+                      width: 26.dp,
+                      height: 26.dp,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                      child: Center(
+                        child: Icon(Icons.remove, color: Colors.white, size: 26.dp),
                       ),
                     ),
                   ),
                 ),
-              Positioned(
-                top: -7.dp,
-                left: -9.dp,
-                child: GestureDetector(
-                  onTap: () {
-                    showAreYouSurePopup(context, story);
-                  },
-                  child: Container(
-                    width: 26.dp,
-                    height: 26.dp,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                    child: Center(
-                      child: Icon(Icons.remove, color: Colors.white, size: 26.dp),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
     );
   }
+
+  Map<String, Color> colorMap = {
+    'blue': Colors.blue,
+    'green': Colors.green,
+    'teal': Colors.teal,
+    'tealAccent': Colors.tealAccent,
+    'beige': Colors.orange[100]!,
+    'orange': Colors.orange,
+    'yellow': Colors.yellow,
+    'red': Colors.red,
+    'pink': Colors.pink,
+    'lightPink': Colors.pink[100]!,
+    'brown': Colors.brown,
+    'black': Colors.black,
+  };
 
   void showAreYouSurePopup(BuildContext context, SocialContent? content) {
     showDialog(
@@ -648,19 +796,12 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
           SocialContent reel = reels[index];
           return GestureDetector(
             onTap: (){
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => FullscreenVideoPlayer(reel: reel, onDelete: (Reel reel) async {
-              //       bool response = await ReelService.deleteReel(reel.id);
-              //       if(response){
-              //         setState(() {
-              //           BusinessSummary.instance.reels.remove(reel);
-              //         });
-              //       }
-              //     },),
-              //   ),
-              // );
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ReelFullScreenViewer(
+                  reels: reels,
+                  initialIndex: index,
+                ),
+              ));
             },
             child: Stack(
               clipBehavior: Clip.none,
@@ -681,41 +822,117 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
                   right: 8.dp,
                   child: Row(
                     children: [
-                      Icon(Icons.play_arrow, color: AppColors.white, size: 16.dp,),
-                      SizedBox(width: 4.dp,),
-                      Text(
-                        reel.viewedByUserIds.length.toString(),
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13.dp,
-                            fontFamily: 'arimo'
+                      Container(
+                        width: 30.dp,
+                        height: 30.dp,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              colorMap[TShopper.instance.color] ?? AppColors.mediumGreyText,
+                              (getGradientColor(TShopper.instance.color)),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Center(
+                          child: TShopper.instance.imageUrl.isEmpty ? Text(
+                            TShopper.instance.firstName[0]+TShopper.instance.lastName[0],
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'todoFont',
+                              fontSize: 18.dp,
+                              color: AppColors.whiteText,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ) : Image.network(TShopper.instance.imageUrl,
+                              fit: BoxFit.cover),
                         ),
                       ),
-                      SizedBox(width: 16.dp,),
-                      Icon(Icons.heart_broken, color: AppColors.white, size: 16.dp,),
-                      SizedBox(width: 4.dp,),
-                      Text(
-                        reel.likeByUserIds.length.toString(),
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13.dp,
-                            fontFamily: 'arimo'
-                        ),
+                      SizedBox(width: 8.dp),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${TShopper.instance.firstName} | ${TShopper.instance.type}",
+                            style: TextStyle(
+                              fontFamily: 'todofont',
+                              fontSize: 14.dp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
+                          ),
+                          if(reel.description.isNotEmpty)...[
+                            SizedBox(height: 2.dp,),
+                            Text(
+                              reel.description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'arimo',
+                                fontSize: 11.dp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      SizedBox(width: 16.dp,),
-                      Icon(Icons.chat, color: AppColors.white, size: 16.dp,),
-                      SizedBox(width: 4.dp,),
-                      Text(
-                        reel.comments.length.toString(),
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13.dp,
-                            fontFamily: 'arimo'
-                        ),
+                    ],
+                  ),
+
+                ),
+                //likes, comments, views
+                Positioned(
+                  bottom: 140.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 12.dp,
                       ),
+                      SizedBox(height: 4.dp,),
+                      Text(getLikesCount(reel), style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'arimo',
+                          fontSize: 11.dp, color: AppColors.white),)
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 100.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/chatImage.png",
+                        height: 12.dp,
+                        width: 12.dp,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(height: 4.dp),
+                      Text(
+                        getCommentsCount(reel),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'arimo',
+                          fontSize: 11.dp,
+                          color: AppColors.white,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 60.dp,
+                  left: 8.dp,
+                  child: Column(
+                    children: [
+                      Image.asset("assets/images/playImage.png", height: 12.dp, width: 12.dp, fit: BoxFit.contain,),
+                      SizedBox(height: 4.dp,),
+                      Text(reel.viewedByUserIds.length.toString(), style: TextStyle(fontWeight: FontWeight.w600,
+                          fontFamily: 'arimo', fontSize: 11.dp, color: AppColors.white),)
                     ],
                   ),
                 ),
@@ -752,7 +969,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
                         color: Colors.red,
                       ),
                       child: Center(
-                        child: Icon(Icons.remove, color: Colors.white, size: 26.dp)
+                          child: Icon(Icons.remove, color: Colors.white, size: 26.dp)
                       ),
                     ),
                   ),
@@ -902,6 +1119,22 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
         borderSide: BorderSide(color: AppColors.borderColor),
       ),
     );
+  }
+
+  String getLikesCount(SocialContent story) {
+    if(story.likeByUserIds.length > 1000){
+      return (story.likeByUserIds.length / 1000).toStringAsFixed(1)+"k";
+    }
+    return story.likeByUserIds.length.toString();
+  }
+
+  String getCommentsCount(SocialContent story) {
+    int count = 0;
+    count += story.comments.length;
+    for(Comment c in story.comments){
+      count += c.replies.length;
+    }
+    return count.toString();
   }
 
 

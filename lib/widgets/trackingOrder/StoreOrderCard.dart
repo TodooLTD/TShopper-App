@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:tshopper_app/models/order/PaymentRequest.dart';
 import 'package:tshopper_app/models/order/TShopperOrderStore.dart';
 import 'package:tshopper_app/sevices/TShopperService.dart';
@@ -202,7 +204,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                     ),
                     padding:  EdgeInsets.symmetric(horizontal :8.dp, vertical:3.dp ),
                     child:
-                    Text("${widget.store.getAmount(widget.order.collectionProducts)}", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
+                    Text("${widget.store.getAmount()}", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,
                         fontFamily: 'arimo', fontWeight: FontWeight.w900, color: AppColors.white),),
                   ),
                   Text("  מוצרים", style: TextStyle(fontSize: AppFontSize.fontSizeSmall,  fontFamily: 'arimo', fontWeight: FontWeight.w500, color: AppColors.blackText),),
@@ -246,37 +248,6 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                             ),
                           ],
                         ),
-                      // if(widget.store.storeStatus == 'PAYMENT_DONE')
-                      //   Container(
-                      //     decoration:  BoxDecoration(
-                      //         color: AppColors.strongGreen.withOpacity(0.1),
-                      //         shape: BoxShape.rectangle,
-                      //         borderRadius: BorderRadius.circular(
-                      //             5.dp)
-                      //     ),
-                      //     child:
-                      //     Padding(
-                      //       padding: EdgeInsets.symmetric(horizontal: 20.0.dp, vertical: 6.dp),
-                      //       child: Text("שולם",
-                      //         style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.strongGreen),),
-                      //     ),
-                      //   ),
-                      // if(widget.store.storeStatus == 'PAYMENT_DECLINED' ||
-                      //     widget.store.storeStatus =='CANCELLED')
-                      //   Container(
-                      //     decoration:  BoxDecoration(
-                      //         color: AppColors.redColor.withOpacity(0.1),
-                      //         shape: BoxShape.rectangle,
-                      //         borderRadius: BorderRadius.circular(
-                      //             5.dp)
-                      //     ),
-                      //     child:
-                      //     Padding(
-                      //       padding: EdgeInsets.symmetric(horizontal: 10.0.dp, vertical: 6.dp),
-                      //       child: Text(widget.store.paymentRequests!.isNotEmpty && widget.store.paymentRequests?.first.status == 'FAILED' ? "נכשלה" : "בוטלה",
-                      //         style: TextStyle(fontSize: 10.dp,  fontFamily: 'arimo', fontWeight: FontWeight.w800, color: AppColors.redColor),),
-                      //     ),
-                      //   ),
                     if(widget.store.storeStatus == 'COLLECTION_DONE')...[
                       GestureDetector(
                         onTap: () async{
@@ -354,45 +325,544 @@ class _StoreOrderCardState extends State<StoreOrderCard>
             if(isExpended)...[
               Column(
                 children: widget.store.products
-                    .map((product) =>
-                    ProductTShopperOrderCard(product: product, collectionProducts: widget.order.collectionProducts,))
-                    .toList(),
-
-              ),
-              if (widget.store.customerNotes != "" &&
-                  widget.store.customerNotes != null)...[
-                SizedBox(height: 8.dp,),
-                Row(
+                    .map((product) => Column(
                   children: [
-                    Image.asset(
-                      "assets/images/warning_icon.png",
-                      width: 16.dp,
-                      height: 16.dp,
-                    ),
-                    SizedBox(width: 8.dp,),
-                    Text("הערת לקוח:", style: TextStyle(
-                        color: AppColors.blackText,
-                        fontSize: AppFontSize.fontSizeSmall,
-                        fontWeight: FontWeight.w800
-                    ),)
-                  ],
-                ),
-                SizedBox(
-                  width: 100.w,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 10),
-                    child: Text(
-                      widget.store.customerNotes,
-                      style: TextStyle(
-                          color: isLightMode ? AppColors.darkGrey : AppColors.white,
-                          fontSize: AppFontSize.fontSizeExtraSmall,
-                          fontFamily: 'arimo'
+                    SizedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 200.dp,
+                                  child: Text(
+                                    product.description,
+                                    maxLines: 18,
+                                    style: TextStyle(
+                                      color: AppColors.blackText,
+                                      fontFamily: 'Arimo',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14.dp,
+                                    ),
+                                  ),
+                                ),
+                                if(widget.store.timeLine.doneCollecting!.isNotEmpty)
+                                Text(
+                                  "${product.collectQuantity!}/${product.quantity}",
+                                  style: TextStyle(
+                                    color: product.collectQuantity! != product.quantity ? AppColors.redColor : AppColors.blackText,
+                                    fontFamily: 'Arimo',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.dp,
+                                  ),
+                                ),
+                                if(widget.store.timeLine.doneCollecting!.isEmpty)
+                                Text(
+                                  "x" +
+                                      product.quantity.toString(),
+                                  style: TextStyle(
+                                    color: AppColors.blackText,
+                                    fontFamily: 'Arimo',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.dp,
+                                  ),
+                                ),
+                                if (widget.store.timeLine.doneCollecting!.isNotEmpty)
+                                  Text(
+                                    (product.actualPrice! *
+                                        product
+                                            .collectQuantity!)
+                                        .toStringAsFixed(2) +
+                                        "₪",
+                                    style: TextStyle(
+                                      color: AppColors.primeryColortext,
+                                      fontFamily: 'Arimo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.dp,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 8.dp,
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => Dialog(
+                                        backgroundColor:
+                                        Colors.transparent,
+                                        insetPadding:
+                                        EdgeInsets.all(10),
+                                        child: Stack(
+                                          children: [
+                                            // Image with zoom
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors
+                                                    .backgroundColor,
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                                child: PhotoView(
+                                                  imageProvider:
+                                                  CachedNetworkImageProvider(
+                                                    product
+                                                        .customerUploadedImage,
+                                                  ),
+                                                  loadingBuilder:
+                                                      (context,
+                                                      event) =>
+                                                      Center(
+                                                        child:
+                                                        CupertinoActivityIndicator(
+                                                          animating: true,
+                                                          color: AppColors
+                                                              .primeryColor,
+                                                          radius: 15.dp,
+                                                        ),
+                                                      ),
+                                                  errorBuilder: (context,
+                                                      error,
+                                                      stackTrace) =>
+                                                  const Center(
+                                                    child: Icon(
+                                                        Icons.error,
+                                                        color: Colors
+                                                            .white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // X button to close
+                                            Positioned(
+                                              top: 5,
+                                              right: 5,
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    Navigator.of(
+                                                        context)
+                                                        .pop(),
+                                                child: Container(
+                                                  decoration:
+                                                  const BoxDecoration(
+                                                    color: AppColors
+                                                        .iconLightGrey,
+                                                    shape:
+                                                    BoxShape.circle,
+                                                  ),
+                                                  padding:
+                                                  const EdgeInsets
+                                                      .all(8),
+                                                  child: const Icon(
+                                                      Icons.close,
+                                                      color:
+                                                      Colors.white,
+                                                      size: 20),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.all(1.0),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                      BorderRadius.circular(15.dp),
+                                      child: Container(
+                                        height: 65.dp,
+                                        width: 65.dp,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.whiteText,
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              8.dp),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 0.0.dp, right: 0.dp),
+                                          child: CachedNetworkImage(
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                Container(),
+                                            fit: BoxFit.contain,
+                                            imageUrl: product
+                                                .customerUploadedImage,
+                                            placeholder:
+                                                (context, url) =>
+                                                Center(
+                                                  child:
+                                                  CupertinoActivityIndicator(
+                                                    animating: true,
+                                                    color: AppColors
+                                                        .primeryColor,
+                                                    radius: 15.dp,
+                                                  ),
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8.dp,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => Dialog(
+                                        backgroundColor:
+                                        Colors.transparent,
+                                        insetPadding:
+                                        EdgeInsets.all(10),
+                                        child: Stack(
+                                          children: [
+                                            // Image with zoom
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors
+                                                    .backgroundColor,
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                                child: PhotoView(
+                                                  imageProvider:
+                                                  CachedNetworkImageProvider(
+                                                    product
+                                                        .shopperUploadedImage!,
+                                                  ),
+                                                  loadingBuilder:
+                                                      (context,
+                                                      event) =>
+                                                      Center(
+                                                        child:
+                                                        CupertinoActivityIndicator(
+                                                          animating: true,
+                                                          color: AppColors
+                                                              .primeryColor,
+                                                          radius: 15.dp,
+                                                        ),
+                                                      ),
+                                                  errorBuilder: (context,
+                                                      error,
+                                                      stackTrace) =>
+                                                  const Center(
+                                                    child: Icon(
+                                                        Icons.error,
+                                                        color: Colors
+                                                            .white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // X button to close
+                                            Positioned(
+                                              top: 5,
+                                              right: 5,
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    Navigator.of(
+                                                        context)
+                                                        .pop(),
+                                                child: Container(
+                                                  decoration:
+                                                  const BoxDecoration(
+                                                    color: AppColors
+                                                        .iconLightGrey,
+                                                    shape:
+                                                    BoxShape.circle,
+                                                  ),
+                                                  padding:
+                                                  const EdgeInsets
+                                                      .all(8),
+                                                  child: const Icon(
+                                                      Icons.close,
+                                                      color:
+                                                      Colors.white,
+                                                      size: 20),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.all(1.0),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                      BorderRadius.circular(15.dp),
+                                      child: Container(
+                                        height: 65.dp,
+                                        width: 65.dp,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.whiteText,
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              8.dp),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 0.0.dp, right: 0.dp),
+                                          child: CachedNetworkImage(
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                Container(),
+                                            fit: BoxFit.contain,
+                                            imageUrl: product
+                                                .shopperUploadedImage!,
+                                            placeholder:
+                                                (context, url) =>
+                                                Center(
+                                                  child:
+                                                  CupertinoActivityIndicator(
+                                                    animating: true,
+                                                    color: AppColors
+                                                        .primeryColor,
+                                                    radius: 15.dp,
+                                                  ),
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8.dp,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => Dialog(
+                                        backgroundColor:
+                                        Colors.transparent,
+                                        insetPadding:
+                                        EdgeInsets.all(10),
+                                        child: Stack(
+                                          children: [
+                                            // Image with zoom
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors
+                                                    .backgroundColor,
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                                child: PhotoView(
+                                                  imageProvider:
+                                                  CachedNetworkImageProvider(
+                                                    product
+                                                        .priceTagImage!,
+                                                  ),
+                                                  loadingBuilder:
+                                                      (context,
+                                                      event) =>
+                                                      Center(
+                                                        child:
+                                                        CupertinoActivityIndicator(
+                                                          animating: true,
+                                                          color: AppColors
+                                                              .primeryColor,
+                                                          radius: 15.dp,
+                                                        ),
+                                                      ),
+                                                  errorBuilder: (context,
+                                                      error,
+                                                      stackTrace) =>
+                                                  const Center(
+                                                    child: Icon(
+                                                        Icons.error,
+                                                        color: Colors
+                                                            .white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // X button to close
+                                            Positioned(
+                                              top: 5,
+                                              right: 5,
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    Navigator.of(
+                                                        context)
+                                                        .pop(),
+                                                child: Container(
+                                                  decoration:
+                                                  const BoxDecoration(
+                                                    color: AppColors
+                                                        .iconLightGrey,
+                                                    shape:
+                                                    BoxShape.circle,
+                                                  ),
+                                                  padding:
+                                                  const EdgeInsets
+                                                      .all(8),
+                                                  child: const Icon(
+                                                      Icons.close,
+                                                      color:
+                                                      Colors.white,
+                                                      size: 20),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.all(1.0),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                      BorderRadius.circular(15.dp),
+                                      child: Container(
+                                        height: 65.dp,
+                                        width: 65.dp,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.whiteText,
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              8.dp),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 0.0.dp, right: 0.dp),
+                                          child: CachedNetworkImage(
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                Container(),
+                                            fit: BoxFit.contain,
+                                            imageUrl:
+                                            product.priceTagImage!,
+                                            placeholder:
+                                                (context, url) =>
+                                                Center(
+                                                  child:
+                                                  CupertinoActivityIndicator(
+                                                    animating: true,
+                                                    color: AppColors
+                                                        .primeryColor,
+                                                    radius: 15.dp,
+                                                  ),
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 8.dp,
+                            ),
+                            if (product.shopperNotes != "" &&
+                                product.shopperNotes != null) ...[
+                              SizedBox(
+                                height: 8.dp,
+                              ),
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/warning_icon.png",
+                                    width: 16.dp,
+                                    height: 16.dp,
+                                  ),
+                                  SizedBox(
+                                    width: 8.dp,
+
+                                  ),
+                                  // Text("הערת שופר:", style: TextStyle(
+                                  //     color: AppColors.blackText,
+                                  //     fontSize: AppFontSize.fontSizeSmall,
+                                  //     fontWeight: FontWeight.w800
+                                  // ),)
+                                  SizedBox(
+                                    width: 74.w,
+                                    child: Padding(
+                                      padding:
+                                      const EdgeInsets.symmetric(
+                                          vertical: 4.0,
+                                          horizontal: 10),
+                                      child: Text(
+                                        product.shopperNotes ?? "",
+                                        style: TextStyle(
+                                            color: isLightMode
+                                                ? AppColors.darkGrey
+                                                : AppColors.white,
+                                            fontSize: AppFontSize
+                                                .fontSizeExtraSmall,
+                                            fontFamily: 'arimo'),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // SizedBox(
+                              //   width: 100.w,
+                              //   child: Padding(
+                              //     padding: const EdgeInsets.symmetric(
+                              //         vertical: 4.0, horizontal: 10),
+                              //     child: Text(
+                              //       product.shopperNotes ?? "",
+                              //       style: TextStyle(
+                              //           color: isLightMode ? AppColors.darkGrey : AppColors.white,
+                              //           fontSize: AppFontSize.fontSizeExtraSmall,
+                              //           fontFamily: 'arimo'
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+                    Divider(
+                      color: AppColors.borderColor,
+                      thickness: 1,
+                    ),
+                  ],
+                ))
+                    .toList(),
+              ),
+
               if(widget.isInProgress && (widget.store.storeStatus == 'ON_HOLD' || widget.store.storeStatus == 'IN_COLLECTION' || widget.store.storeStatus == 'COLLECTION_DONE'
               || widget.store.storeStatus == 'WAITING_FOR_PAYMENT'))...[
                 SizedBox(height: 16.dp,),

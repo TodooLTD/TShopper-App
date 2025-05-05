@@ -6,6 +6,7 @@ import '../models/tshopper/TShopper.dart';
 import '../sevices/ShiftService.dart';
 import '../widgets/appBars/CustomAppBarOnlyBack.dart';
 import '../widgets/overlayMenu/OverlayMenu.dart';
+import '../widgets/popup/BottomPopup.dart';
 
 class ShiftSelectionPage extends StatefulWidget {
   @override
@@ -104,8 +105,16 @@ class _ShiftSelectionPageState extends State<ShiftSelectionPage> with TickerProv
 
   List<DateTime> _generateNextWeekDates() {
     final now = DateTime.now();
-    final int daysUntilNextSunday = (DateTime.sunday - now.weekday + 7) % 7;
+
+    // If today is Sunday, move to next Sunday
+    final bool isTodaySunday = now.weekday == DateTime.sunday;
+
+    final int daysUntilNextSunday = isTodaySunday
+        ? 7
+        : (DateTime.sunday - now.weekday + 7) % 7;
+
     final nextSunday = now.add(Duration(days: daysUntilNextSunday));
+
     return List.generate(7, (i) => nextSunday.add(Duration(days: i)));
   }
 
@@ -365,9 +374,12 @@ class _ShiftSelectionPageState extends State<ShiftSelectionPage> with TickerProv
       success &= await ShiftService.deleteShiftsByIds(shiftIds: shiftIdsToDelete);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(success ? "המשמרות נשלחו בהצלחה" : "שגיאה בשליחה"),
-    ));
+    showBottomPopup(
+      context: context,
+      message: success ? "המשמרות נשלחו בהצלחה" : "שגיאה בשליחת משמרות, נסה שוב",
+      imagePath: "assets/images/warning_icon.png",
+    );
+
   }
 
 
