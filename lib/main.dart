@@ -13,10 +13,6 @@ import 'package:tshopper_app/views/SplashScreen.dart';
 import 'constants/AppColors.dart';
 import 'firebase_options.dart';
 
-bool get isLightMode =>
-    SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-        Brightness.light;
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -142,7 +142,7 @@ class TimerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = isLightMode ? Colors.grey.shade300 : Colors.grey.shade800
+      ..color = Colors.grey.shade300
       ..strokeWidth = 3.dp
       ..style = PaintingStyle.stroke;
 

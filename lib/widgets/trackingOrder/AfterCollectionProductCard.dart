@@ -384,7 +384,7 @@ class _AfterCollectionProductCardState extends State<AfterCollectionProductCard>
                       child: Text(
                         widget.product.shopperNotes ?? "",
                         style: TextStyle(
-                            color: isLightMode ? AppColors.darkGrey : AppColors.white,
+                            color: AppColors.darkGrey,
                             fontSize: AppFontSize.fontSizeExtraSmall,
                             fontFamily: 'arimo'
                         ),

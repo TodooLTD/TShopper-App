@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                     child: Column(
                       children: <Widget>[
                         SizedBox(height: 40.dp),
-                        Image.asset(isLightMode ? "assets/images/shopperLight.png" : "assets/images/shopperDark.png", width: MediaQuery
+                        Image.asset("assets/images/shopperLight.png", width: MediaQuery
                             .of(context)
                             .size
                             .width * 0.8,),

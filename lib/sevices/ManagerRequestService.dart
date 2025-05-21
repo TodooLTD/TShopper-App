@@ -73,4 +73,20 @@ class ManagerRequestService {
       return [];
     }
   }
+
+  static Future<List<ManagerRequest>> getManagerRequestsByOrder(String orderId) async {
+    Uri uri = Uri.parse('$baseServerUrl/managerRequest/getByOrder/$orderId');
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonList.map((json) => ManagerRequest.fromJson(json)).toList();
+    } else {
+      return [];
+    }
+  }
 }

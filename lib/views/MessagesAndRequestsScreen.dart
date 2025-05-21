@@ -110,7 +110,7 @@ class _MessagesAndRequestsScreenState extends ConsumerState<MessagesAndRequestsS
                   height: 32.dp,
                   margin: EdgeInsets.symmetric(horizontal: 8.dp),
                   decoration: BoxDecoration(
-                    color: isLightMode ? AppColors.primaryLightColor : AppColors.backgroundColor,
+                    color: AppColors.primaryLightColor,
                     borderRadius:
                     BorderRadius.circular(AppFontSize.circularRadiusVal),
                   ),
@@ -423,7 +423,7 @@ class _MessagesAndRequestsScreenState extends ConsumerState<MessagesAndRequestsS
                     fontWeight: FontWeight.w800,
                     color: isSelected
                         ? AppColors.blackText
-                        : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                        : AppColors.oppositeBackgroundColor,
                     fontFamily: 'Arimo',
                   ),
                 ),
@@ -436,7 +436,7 @@ class _MessagesAndRequestsScreenState extends ConsumerState<MessagesAndRequestsS
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? AppColors.blackText
-                          : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                          : AppColors.oppositeBackgroundColor,
                       fontFamily: 'Arimo',
                     ),
                   ),

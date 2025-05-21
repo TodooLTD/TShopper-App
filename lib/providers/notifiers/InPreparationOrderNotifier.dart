@@ -108,9 +108,7 @@ class InPreparationOrderNotifier extends StateNotifier<InPreparationOrderData> {
             child: Material(
               color: Colors.transparent,
               elevation: 5.0,
-              shadowColor: isLightMode
-                  ? AppColors.superLightGrey.withOpacity(0.2)
-                  : AppColors.backgroundColor.withOpacity(0.2),
+              shadowColor: AppColors.superLightGrey.withOpacity(0.2),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.dp),
                 bottomRight: Radius.circular(20.dp),
@@ -249,12 +247,17 @@ class InPreparationOrderNotifier extends StateNotifier<InPreparationOrderData> {
 
 
   void deleteOrder(String orderId) {
+    print("delete Order !!!!");
+
     final List<TShopperOrder> updatedOrdersList = state.allInPreparationOrders
         .where((order) => order.orderId != orderId)
         .toList();
     if (updatedOrdersList.length < state.allInPreparationOrders.length) {
       state = state.copyWith(allInPreparationOrders: updatedOrdersList);
     } else {
+    }
+    if(currentOrder != null && currentOrder?.orderId == orderId){
+      state = state.copyWith(currentOrder: null);
     }
   }
 

@@ -41,10 +41,6 @@ class _EditShiftWidgetState extends ConsumerState<EditShiftWidget>
     super.dispose();
   }
 
-  static bool get isLightMode =>
-      SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-          Brightness.light;
-
   @override
   Widget build(BuildContext context) {
     return Column(

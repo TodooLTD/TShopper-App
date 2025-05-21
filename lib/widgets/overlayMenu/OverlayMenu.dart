@@ -5,10 +5,9 @@ import 'package:tshopper_app/views/HomeScreen.dart';
 import 'package:tshopper_app/views/ShiftsScreen.dart';
 import '../../constants/AppColors.dart';
 import '../../constants/AppFontSize.dart';
-import '../../sevices/HelpCenterService.dart';
+import '../../main.dart';
 import '../../views/AllConversationsScreen.dart';
 import '../../views/MessagesAndRequestsScreen.dart';
-import '../../views/ShiftSelectionPage.dart';
 import '../../views/ShopperDetailsScreen.dart';
 import '../../views/SocialScreen.dart';
 
@@ -124,15 +123,8 @@ class OverlayMenu {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Center(
-                                child: AppColors.isLightMode
-                                    ? Image.asset(
+                                child: Image.asset(
                                   "assets/images/todoLOGO-removebg.png",
-                                  width: 60,
-                                  height: 25,
-                                  fit: BoxFit.fill,
-                                )
-                                    : Image.asset(
-                                  "assets/images/todoLOGO-removebgDark.png",
                                   width: 60,
                                   height: 25,
                                   fit: BoxFit.fill,

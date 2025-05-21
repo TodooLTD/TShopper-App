@@ -212,7 +212,7 @@ class _CollectingProductsScreenState
                             child: Text(
                               widget.store.customerNotes,
                               style: TextStyle(
-                                  color: isLightMode ? AppColors.darkGrey : AppColors.white,
+                                  color: AppColors.darkGrey,
                                   fontSize: AppFontSize.fontSizeExtraSmall,
                                   fontFamily: 'arimo'
                               ),
@@ -237,15 +237,35 @@ class _CollectingProductsScreenState
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.blackText)),
                                 SizedBox(
-                                  height: 2.dp,
-                                ),
+                                  height: 2,),
                                 Text(
-                                    "הזמנה גדולה הינה הזמנה שמצריכה יותר משליח אחד.",
+                                    "הזמנה גדולה הינה הזמנה שמצריכה יותר משליח אחד,",
                                     style: TextStyle(
                                         fontSize: 12.dp,
                                         fontFamily: 'arimo',
                                         fontWeight: FontWeight.w400,
                                         color: AppColors.mediumGreyText)),
+                                SizedBox(
+                                  height: 2,
+                                ),
+                                Text.rich(
+                                  TextSpan(
+                                    style: TextStyle(
+                                      fontSize: 12.dp,
+                                      fontFamily: 'arimo',
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.mediumGreyText,
+                                    ),
+                                    children: [
+                                      TextSpan(text: "בחרי במספר השליחים "),
+                                      TextSpan(
+                                        text: "הכולל",
+                                        style: TextStyle(fontWeight: FontWeight.w800),
+                                      ),
+                                      TextSpan(text: " שתרצי שיגיעו"),
+                                    ],
+                                  ),
+                                )
                               ],
                             ),
                             CupertinoSwitch(

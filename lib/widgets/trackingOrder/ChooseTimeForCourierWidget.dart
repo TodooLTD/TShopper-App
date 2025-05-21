@@ -60,7 +60,7 @@ class _ChooseTimeForCourierWidgetState extends State<ChooseTimeForCourierWidget>
         widget.onChooseNumber(selectedNumber);
       },
       child: Material(
-        elevation: isLightMode ? 3 : 0,
+        elevation: 3,
         shape: const CircleBorder(),
         child: CircleAvatar(
           backgroundColor:
@@ -70,7 +70,7 @@ class _ChooseTimeForCourierWidgetState extends State<ChooseTimeForCourierWidget>
             number.toString(),
             style: TextStyle(
               fontSize: 16,
-              color: isLightMode ? AppColors.primeryColor : AppColors.white,
+              color: AppColors.primeryColor,
             ),
           ),
         ),
@@ -161,7 +161,7 @@ class _ChooseTimeForCourierWidgetState extends State<ChooseTimeForCourierWidget>
         hint: Text(hint, style: _hintStyle()),
         icon: Icon(Icons.arrow_drop_down, color: AppColors.mediumGreyText),
         dropdownColor: AppColors.backgroundColor,
-        elevation: isLightMode ? 2 : 0,
+        elevation: 2,
         menuMaxHeight: 250.dp,
         items: items.map((item) => DropdownMenuItem(value: item, child: Text(item.fullAddress, style: _optionStyle(item.fullAddress)))).toList(),
         onChanged: onChanged,

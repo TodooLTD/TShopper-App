@@ -33,9 +33,6 @@ class EditShiftPopupState extends State<EditShiftPopup> with WidgetsBindingObser
   TextEditingController notes = TextEditingController();
   bool isLoading = true;
   bool _isModalOpen = false;
-  static bool get isLightMode =>
-      SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-          Brightness.light;
 
   @override
   void initState() {

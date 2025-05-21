@@ -168,7 +168,7 @@ class _ManagerRequestCardState extends State<ManagerRequestCard> {
                         },
                         child: Container(
                           decoration:  BoxDecoration(
-                            color: isLightMode ? AppColors.primaryLightColor : AppColors.black,
+                            color: AppColors.primaryLightColor,
                             shape: BoxShape.circle,
                           ),
                           padding: const EdgeInsets.all(5),

@@ -335,7 +335,7 @@ class _CollectingProductCardState extends State<CollectingProductCard>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "מחיר המוצר",
+                    "מחיר המוצר (מוצר בודד)",
                     style: TextStyle(
                       fontFamily: 'arimo',
                       fontWeight: FontWeight.w600,

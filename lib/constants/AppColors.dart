@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 class AppColors {
   static const transparentPerm = Colors.transparent;
   static const primaryLightColorPerm = Color(0xFFEFEFEF);
   static const whitePerm = Colors.white;
   static const blackPerm = Colors.black;
-  static bool get isLightMode =>
-      SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-      Brightness.light;
-  static final Color primaryLightColor =
-      isLightMode ? const Color(0xFFEFEFEF) : const Color(0xFFbababa);
+
+  static final Color primaryLightColor = const Color(0xFFEFEFEF);
   static Color salmon = const Color(0xFFFFA07A);
   static Color gold = const Color(0xFFFFC300);
   static const Color backgroundOrangeColor = const Color(0xFFffd1b7);
   static const Color backgroundRedColor = Color.fromARGB(255, 249, 214, 214);
 
-  static final primaryLightColor2 = Color(0xFF6d22a1);
   static Color calmBlue = const Color.fromARGB(255, 114, 156, 204);
 
   static const Color mediumBlue = Color(0xFF004AAD);
@@ -79,151 +74,71 @@ class AppColors {
     'בורדו': Color(0xFF890418),
     'חום': Color(0xFF805000),
   };
-  //static final Color backgroundColor =
-  //    isLightMode ? Colors.white : Colors.black;
 
-  static final Color titleColor =
-      isLightMode ? AppColors.primaryColorText : Colors.white;
-  static final Color darkModeGrey =
-      isLightMode ? const Color(0xFF262626) : const Color(0xFF262626);
+  static final Color popupBackgroundColor = Colors.white;
 
-  static final Color popupBackgroundColor =
-      isLightMode ? Colors.white : const Color(0xFF262626);
+  static final Color oppositeBackgroundColor = Colors.black;
+  static final Color darkGrey = const Color(0XFF5a5a5a);
 
-  static final Color oppositeBackgroundColor =
-      isLightMode ? Colors.black : Colors.white;
-  static final Color darkGrey =
-      isLightMode ? const Color(0XFF5a5a5a) : const Color(0XFF5a5a5a);
-  static final Color inputFieldFillColor =
-      isLightMode ? Colors.black : Colors.white;
-  static final Color lightGrey =
-      isLightMode ? const Color(0XFFDBDBDB) : const Color(0XFFB5B5B5);
+
   static final errorColor = Color(0xFF890418);
 
-  static final orange = isLightMode
-      ? const Color.fromARGB(255, 255, 107, 8)
-      : const Color.fromARGB(255, 255, 107, 8);
+  static final orange =  const Color.fromARGB(255, 255, 107, 8);
 
-  // static final Color black = isLightMode ? Colors.black : darkGrey;
 
   static final iconsColor = Color(0XFF00000073);
 
-  // static final Color borderColor = isLightMode ? mediumGrey : Color(0XFF2E2E2E);
 
-  static final Color superLightPurple =
-      isLightMode ? const Color(0xFFE7DCF0) : const Color(0xFFE7DCF0);
-  static final Color lightGreen =
-      isLightMode ? const Color(0xFFE0EFC8) : const Color(0xFFE0EFC8);
-  static final Color checkBox =
-      isLightMode ? const Color(0xFF9D9D9D) : const Color(0xFF9D9D9D);
-  static final Color mediumGrey = isLightMode
-      ? const Color.fromARGB(255, 129, 129, 129)
-      : const Color(0xFF9D9D9D);
-  static final Color primaryMediumColor = isLightMode
-      ? const Color.fromARGB(255, 125, 80, 158)
-      : const Color(0xFF4D1B70);
-  static final Color lightWhitePurple = isLightMode
-      ? const Color.fromARGB(255, 234, 229, 236)
-      : const Color.fromARGB(255, 234, 229, 236);
-  static final Color superLightGrey = isLightMode
-      ? const Color.fromARGB(255, 216, 216, 216)
-      : const Color.fromARGB(255, 216, 216, 216);
-  static final Color warningColor = isLightMode
-      ? const Color.fromARGB(255, 240, 30, 15)
-      : const Color.fromARGB(255, 247, 79, 79);
-  static final Color highTraffic = isLightMode
-      ? const Color.fromARGB(255, 207, 230, 170)
-      : const Color.fromARGB(255, 207, 230, 170);
-  static final Color mainBoxShadowColor = isLightMode
-      ? const Color(0XFFB5B5B5).withOpacity(0.5)
-      : const Color(0XFFB5B5B5).withOpacity(0.1);
-  static final Color mainIconButtonColor =
-      isLightMode ? Colors.white : const Color(0XFFB5B5B5);
-  static final Color mainIconButtonBgColor =
-      isLightMode ? const Color(0XFFB5B5B5).withOpacity(0.8) : Colors.black;
-  static final Color moderateTraffic =
-      isLightMode ? const Color(0xFFC1E5EB) : const Color(0xFFC1E5EB);
-  static final Color lowTraffic =
-      isLightMode ? const Color(0xFFFFEFAE) : const Color(0xFFFFEFAE);
-  static final Color mediumYellow =
-      isLightMode ? const Color(0xFFF6E188) : const Color(0xFFF6E188);
-  static final Color lightYellow =
-      isLightMode ? const Color(0xFFC1E5EB) : const Color(0xFFC1E5EB);
-  static final Color mediumGreen = isLightMode
-      ? const Color.fromARGB(255, 175, 226, 163)
-      : const Color.fromARGB(255, 175, 226, 163);
+  static final Color superLightPurple = const Color(0xFFE7DCF0);
+  static final Color lightGreen = const Color(0xFFE0EFC8);
+  static final Color checkBox = const Color(0xFF9D9D9D);
 
-  static final Color strongGreen = isLightMode
-      ? const Color(0xFF41B93C)
-      : Color.fromARGB(255, 131, 226, 110);
 
-  static const Color lightStrongGreen =
-      Color(0xFF7ACE76);
+  static final Color superLightGrey = const Color.fromARGB(255, 216, 216, 216);
 
-  static const Color lightStrongRed =
-  Color(0xFFF71100);
+  static final Color strongGreen = const Color(0xFF3aa636);
+
+  static const Color lightStrongGreen = Color(0xFF7ACE76);
+
+  static const Color lightStrongRed = Color(0xFFb20000);
 
   // new colors - oren
   static const Color white = Color(0xFFFFFFFF);
 
-  static final primaryColor =
-      isLightMode ? const Color(0xFF4d1b70) : const Color(0xFF4d1b70);
-
-  static final primaryColorText =
-  isLightMode ? const Color(0xFF4d1b70) : const Color(0xFFBE62FF);
+  static final primaryColor = const Color(0xFF3E1048);
 
   static const Color black = Color(0xFF000000);
 
-  static final Color whiteText =
-      isLightMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+  static final Color whiteText = const Color(0xFFFFFFFF);
 
-  static final Color blackText =
-      isLightMode ? const Color(0xFF000000) : const Color(0xFFFFFFFF);
+  static final Color blackText = const Color(0xFF000000);
 
-  static final Color backgroundColor =
-      isLightMode ? const Color(0xFFFFFFFF) : const Color(0xFF171717);
+  static final Color backgroundColor = const Color(0xFFFFFFFF);
 
-  static final Color borderColor =
-  isLightMode ? const Color(0xFFEFEFEF) : const Color(0xFF1C1C1E);
+  static final Color borderColor = const Color(0xFFEFEFEF);
 
 
-  static const Color mediumGreyText = Color(0xFF959595);
+  static const Color mediumGreyText = Color(0xFF757575);
 
-  static final Color backgroundGreyColor =
-      isLightMode ? const Color(0xFFEFEFEF) : const Color(0xFF262626);
+  static final Color backgroundGreyColor = const Color(0xFFEFEFEF);
 
-  static final Color lightGreyText =
-      isLightMode ? const Color(0xFFEFEFEF) : const Color(0xFF959595);
+  static final Color lightGreyText = const Color(0xFFEFEFEF);
 
-  static final Color popupColor =
-      isLightMode ? const Color(0xFFFFFFFF) : const Color(0xFF262626);
+  static final Color popupColor = const Color(0xFFFFFFFF);
 
-  static final Color CategoryColor =
-  isLightMode ? const Color(0xFFEFEFEF) : const Color(0xFF202020);
+  static final Color CategoryColor = const Color(0xFFEFEFEF);
 
-  static final Color iconPrimeryColor =
-      isLightMode ? const Color(0xFF4D1B70) : const Color(0xFFFFFFFF);
-  static const Color primeryColor = Color(0xFF4D1B70);
-  static const Color primeryLightColor = Color(0xFFE7DCF0);
-  static const Color primeryMediumColor = Color(0xFF6D22A1);
+  static final Color iconPrimeryColor = const Color(0xFF4D1B70);
+  static const Color primeryColor = Color(0xFF3E1048);
+  static const Color primeryLightColor = Color(0xFFE6E0E7);
 
   static const Color iconLightGrey = Color(0xFFBABABA);
+  static final Color primeryColortext = const Color(0xFF3E1048);
 
-  static final Color mediumLightPurple =
-      isLightMode ? const Color(0xFF6D22A1) : const Color(0xFF9700FF);
+  static final Color lightprimeryColortab = const Color(0xFFFFFFFF);
 
-  static final Color OnTapprimeryColor =
-      isLightMode ? const Color(0xFFE7DCF0) : const Color(0xFF4D1B70);
-
-  static final Color primeryColortext =
-  isLightMode ? const Color(0xFF4D1B70) : const Color(0xFFFFFFFF);
-
-  static final Color lightprimeryColortab =
-  isLightMode ? const Color(0xFFFFFFFF) : const Color(0xFFE7DCF0);
-
-  static final Color primeryMediumLightColor =
-      isLightMode ? const Color(0xFF4D1B70) : const Color(0xFF6D22A1);
-  static const Color redColor = Color(0xFFC80000);
+  static final Color primeryMediumLightColor = const Color(0xFF4D1B70);
+  static const Color redColor = Color(0xFFb20000);
 
   static const deliveryColor = Color(0xFF6DCB31);
   static const pickupColor = Color(0xFF004AAD);
@@ -235,5 +150,22 @@ class AppColors {
   static const Color pinkBackground = Color(0xFFFCE4EC);
   static const Color orangeBackground = Color(0xFFFFCCBC);
   static const Color darkPurpleColor = Color(0xFF230c32);
-
+  static const Color todoColor = Color(0xFF3E1048);         // deep purple
+  static const Color wineShadow = Color(0xFF382C36);         // muted maroon gray
+  static const Color mauveAsh = Color(0xFF5B4253);           // dusty mauve
+  static const Color beigeSand = Color(0xFFE7D6BA);          // light sand
+  static const Color burntSienna = Color(0xFF8C4E25);        // reddish brown
+  static const Color tanLeather = Color(0xFFA77E50);         // leather tan
+  static const Color cocoaDust = Color(0xFF685144);          // muted brown
+  static const Color oliveGold = Color(0xFF776337);          // brownish gold
+  static const Color sunflowerGold = Color(0xFFE1C57A);      // soft yellow-gold
+  static const Color sunsetPeach = Color(0xFFDC9F5F);        // peachy orange
+  static const Color cloudWhite = Color(0xFFEFEFEF);         // very light gray (already exists)
+  static const Color mediumGrey = Color(0xFFA6A6A6);         // neutral gray
+  static const Color darkkGrey = Color(0xFF757575);         // neutral gray
+  static const Color darkSlate = Color(0xFF2A2A2A);          // charcoal gray
+  static const Color nightBlack = Color(0xFF1C1C1E);         // almost black
+  static const Color trueBlack = Color(0xFF000000);          // black
+  static const Color lavenderSmoke = Color(0xFFAD90B3);      // muted light purple
+  static const Color lightLavenderSmoke = Color(0xFFE6E0E7);      // muted light purple
 }

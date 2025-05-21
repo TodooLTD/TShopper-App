@@ -161,9 +161,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
                     height: 32.dp,
                     margin: EdgeInsets.symmetric(horizontal: 8.dp),
                     decoration: BoxDecoration(
-                      color: isLightMode
-                          ? AppColors.primaryLightColor
-                          : AppColors.backgroundColor,
+                      color: AppColors.primaryLightColor,
                       borderRadius: BorderRadius.circular(
                           AppFontSize.circularRadiusVal),
                     ),
@@ -283,9 +281,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
                     fontWeight: FontWeight.w800,
                     color: isSelected
                         ? AppColors.blackText
-                        : isLightMode
-                        ? AppColors.oppositeBackgroundColor
-                        : AppColors.blackText,
+                        : AppColors.oppositeBackgroundColor,
                     fontFamily: 'Arimo',
                   ),
                 ),
@@ -300,9 +296,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? AppColors.blackText
-                          : isLightMode
-                          ? AppColors.oppositeBackgroundColor
-                          : AppColors.blackText,
+                          : AppColors.oppositeBackgroundColor,
                       fontFamily: 'Arimo',
                     ),
                   ),
@@ -321,7 +315,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> with TickerProvider
     final hour = now.hour;
 
     if (weekday == DateTime.sunday && hour > 9) return true; // Sunday until 09:00
-    if (weekday >= DateTime.monday && weekday <= DateTime.wednesday) return true; // Monday–Wednesday all day
+    if (weekday >= DateTime.monday && weekday <= DateTime.friday) return true; // Monday–Wednesday all day
     return false;
   }
 

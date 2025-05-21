@@ -26,17 +26,20 @@ class PendingOrderItem extends riverpod.ConsumerStatefulWidget {
 }
 
 class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
-  bool isLoading = true;
   int minutesSinceAssigned = 0;
   Timer? assignTimer;
   Timer? cancelTimer;
   int remainingTimeInSeconds = 0;
+  bool isLoading = true;
   bool isExpended = false;
-  late TextEditingController _notesController;
+  bool haveOpenRequest = false;
+  TextEditingController _notesController = new TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
+    checkCancelOrderRequests();
 
     // Setup the cancel countdown timer
     remainingTimeInSeconds = widget.order.getOrderPlaced()
@@ -106,7 +109,18 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
       timeString = DateFormat('HH:mm').format(widget.order.getOrderConfirmed());
     }
 
-    return GestureDetector(
+    return isLoading ?
+    Container(
+      color: AppColors.whiteText,
+      child: Center(
+        child: CupertinoActivityIndicator(
+          animating: true,
+          color: AppColors.blackText,
+          radius: 15.dp,
+        ),
+      ),
+    )
+    : GestureDetector(
       onTap: () async {
         if(widget.order.orderStatus == 'PENDING'){
           String response = await TShopperService.updateOrder(
@@ -162,7 +176,7 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                                           padding: EdgeInsets.symmetric(horizontal: 12.dp, vertical: 6.dp),
                                           child: Text(
                                             widget.order.orderStatus == 'ON_HOLD' ?
-                                                "אושרה | ${widget.order.timeLine.ShopperNameSeenBy} | $timeString"
+                                                "אושרה | ${widget.order.timeLine.shopperNameConfirmedBy} | $timeString"
                                                 : "ממתין לאישור $minutesSinceAssigned דקות",
                                             style: TextStyle(
                                               color: widget.order.orderStatus == 'ON_HOLD' ? AppColors.strongGreen : AppColors.redColor,
@@ -183,6 +197,50 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                         ),
                       ],
                     ),
+                    if(haveOpenRequest)...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      color: AppColors.todoColor.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(6.dp),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 12.dp, vertical: 6.dp),
+                                      child: Row(
+                                        children: [
+                                          Image.asset("assets/images/newIcons/warningIcon.png", width: 14,),
+                                          SizedBox(width: 8,),
+                                          Text(
+                                            "נשלחה בקשה לביטול הזמנה",
+                                            style: TextStyle(
+                                              color: AppColors.todoColor,
+                                              fontWeight: FontWeight.w800,
+                                              fontFamily: 'arimo',
+                                              fontSize: AppFontSize.fontSizeExtraSmall,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(width: 8.dp),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                     Column(
                       children: widget.order.orderStores
                           .map((store) => StoreOrderCard(store: store, order: widget.order,))
@@ -214,7 +272,17 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                                 titleColor: AppColors.white,
                                 title: "סרב",
                                 onPressed: () async {
-                                  showSendManagerRequestPopup(context);
+                                  bool response = await checkCancelOrderRequestsExist();
+                                  if(!response){
+                                    showSendManagerRequestPopup(context);
+                                  }else{
+                                    showBottomPopup(
+                                      context: context,
+                                      message: "בקשה לביטול הזמנה נשלחה, לא ניתן לשלוח יותר מבקשה אחת",
+                                      imagePath:
+                                      "assets/images/warning_icon.png",
+                                    );
+                                  }
 
                                 }),
                           ),
@@ -247,9 +315,11 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text("האם את בטוחה שאת רוצה לקבל את ההזמנה?", style: TextStyle( fontFamily: 'arimo',
-                    fontWeight: FontWeight.w600, fontSize: 14.dp, color: AppColors.blackText
-                ),)
+                Text("האם את בטוחה שאת רוצה לקבל את ההזמנה?", style: TextStyle(color: AppColors.blackText, fontSize: 18,
+                    fontWeight: FontWeight.w800, fontFamily: 'todofont'), textAlign: TextAlign.center,),
+                SizedBox(height: 8,),
+                Text("שימי לב 💜 לפני קבלת ההזמנה, ודאי שכל הפריטים שהלקוח הזמין מתאימים וניתנים לשליחה", style: TextStyle(color: AppColors.blackText, fontSize: 14,
+                    fontWeight: FontWeight.w600, fontFamily: 'arimo'), textAlign: TextAlign.center,),
               ],
             ),
           ),
@@ -263,31 +333,34 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                   flex: 1,
                   child: Padding(
                     padding:  EdgeInsets.only(left: 4.0.dp),
-                    child: TextButton(
-                      onPressed: () async {
-                        String response = await TShopperService.updateOrder(
-                            orderId: widget.order.orderId,
-                            actionType: "ON_HOLD",
-                            notes: TShopper.instance.uid,
-                            image: TShopper.instance.firstName, missionId: '');
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.whiteText,
-                        backgroundColor: AppColors.primeryColor,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 0.dp, vertical: 15.dp),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.dp),
+                    child: SizedBox(
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () async {
+                          String response = await TShopperService.updateOrder(
+                              orderId: widget.order.orderId,
+                              actionType: "ON_HOLD",
+                              notes: TShopper.instance.uid,
+                              image: TShopper.instance.firstName, missionId: '');
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.whiteText,
+                          backgroundColor: AppColors.primeryColor,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 0.dp, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "אישור",
-                        style: TextStyle(
-                            fontSize: AppFontSize.fontSizeRegular,
-                            fontFamily: 'arimo',
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w800),
+                        child: Text(
+                          "אישור",
+                          style: TextStyle(
+                              fontSize: AppFontSize.fontSizeRegular,
+                              fontFamily: 'arimo',
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w800),
+                        ),
                       ),
                     ),
                   ),
@@ -296,26 +369,29 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                   flex: 1,
                   child: Padding(
                     padding:  EdgeInsets.only(right: 4.0.dp),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.whiteText,
-                        backgroundColor: AppColors.superLightPurple,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 0.dp, vertical: 15.dp),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.dp),
+                    child: SizedBox(
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.whiteText,
+                          backgroundColor: AppColors.superLightPurple,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 0.dp, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "ביטול",
-                        style: TextStyle(
-                            fontSize: AppFontSize.fontSizeRegular,
-                            fontFamily: 'arimo',
-                            color: AppColors.primeryColor,
-                            fontWeight: FontWeight.w500),
+                        child: Text(
+                          "ביטול",
+                          style: TextStyle(
+                              fontSize: AppFontSize.fontSizeRegular,
+                              fontFamily: 'arimo',
+                              color: AppColors.primeryColor,
+                              fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ),
                   ),
@@ -417,6 +493,9 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
                               imagePath:
                               "assets/images/warning_icon.png",
                             );
+                            setState(() {
+                              haveOpenRequest = true;
+                            });
                             Navigator.pop(context);
                           }else{
                             showBottomPopup(
@@ -483,4 +562,24 @@ class _PendingOrderItemState extends riverpod.ConsumerState<PendingOrderItem> {
     );
   }
 
+  Future<void> checkCancelOrderRequests() async{
+
+    List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+    if(requests.where((request) => request.requestSubject == "cancelOrder"
+        && (request.status == "Pending" || request.status == "InProgress")).toList().isNotEmpty){
+        haveOpenRequest = true;
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<bool> checkCancelOrderRequestsExist() async{
+
+    List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+    if(requests.where((request) => request.requestSubject == "cancelOrder").toList().isNotEmpty){
+      return true;
+    }
+    return false;
+  }
 }

@@ -58,7 +58,7 @@ class _UpdateCourierPickedUpWidgetState extends State<UpdateCourierPickedUpWidge
         widget.onChooseNumber(selectedNumber);
       },
       child: Material(
-        elevation: isLightMode ? 3 : 0,
+        elevation: 3,
         shape: const CircleBorder(),
         child: CircleAvatar(
           backgroundColor:
@@ -68,7 +68,7 @@ class _UpdateCourierPickedUpWidgetState extends State<UpdateCourierPickedUpWidge
             number.toString(),
             style: TextStyle(
               fontSize: 16,
-              color: isLightMode ? AppColors.primeryColor : AppColors.white,
+              color: AppColors.primeryColor,
             ),
           ),
         ),

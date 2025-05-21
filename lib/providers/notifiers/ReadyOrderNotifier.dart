@@ -102,9 +102,7 @@ class ReadyOrderNotifier extends StateNotifier<ReadyOrderData> {
             child: Material(
               color: Colors.transparent,
               elevation: 5.0,
-              shadowColor: isLightMode
-                  ? AppColors.superLightGrey.withOpacity(0.2)
-                  : AppColors.backgroundColor.withOpacity(0.2),
+              shadowColor: AppColors.superLightGrey.withOpacity(0.2),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.dp),
                 bottomRight: Radius.circular(20.dp),

@@ -11,6 +11,7 @@ import '../../../constants/AppFontSize.dart';
 import 'package:vibration/vibration.dart';
 import '../../main.dart';
 import '../../models/order/TShopperOrder.dart';
+import '../../sevices/TShopperService.dart';
 
 class PendingOrderData {
   PendingOrderData({
@@ -85,20 +86,14 @@ class PendingOrderNotifier extends StateNotifier<PendingOrderData> {
     // Update in allPendingOrders list
     int orderIndex = allPendingOrders.indexWhere((order) =>
     order.orderId == orderId);
+
     if (orderIndex != -1) {
-      TShopperOrder updatedOrder = allPendingOrders[orderIndex].copyWith(orderStatus: newStatus);
+      TShopperOrder updatedOrder = allPendingOrders[orderIndex];
       List<TShopperOrder> updatedOrdersList = List<TShopperOrder>.from(allPendingOrders)
         ..[orderIndex] = updatedOrder;
-      if(newStatus == "SEEN_BY_SHOPPER") {
-        updatedOrder.orderStatus = 'SEEN_BY_SHOPPER';
-        updatedOrder.timeLine.orderSeenByShopper = DateTime.now().toString();
-        updatedOrder.timeLine.ShopperNameSeenBy = name;
-      }
-      if(newStatus == "ON_HOLD") {
-        updatedOrder.orderStatus = 'ON_HOLD';
-        updatedOrder.timeLine.orderConfirmedByShopper = DateTime.now().toString();
-        updatedOrder.timeLine.ShopperNameConfirmedBy = name;
-      }
+      updatedOrdersList.removeWhere((order) => order.orderId == orderId);
+      TShopperOrder newOrder = await TShopperService.getOrder(orderId);
+      updatedOrdersList.add(newOrder);
       state = state.copyWith(allPendingOrders: updatedOrdersList);
 
       if (currentOrder != null && currentOrder?.orderId == orderId) {
@@ -164,9 +159,7 @@ class PendingOrderNotifier extends StateNotifier<PendingOrderData> {
             child: Material(
               color: Colors.transparent,
               elevation: 5.0,
-              shadowColor: isLightMode
-                  ? AppColors.superLightGrey.withOpacity(0.2)
-                  : AppColors.backgroundColor.withOpacity(0.2),
+              shadowColor: AppColors.superLightGrey.withOpacity(0.2),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20.dp),
                 topRight: Radius.circular(20.dp),

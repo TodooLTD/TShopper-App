@@ -117,9 +117,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
                       height: 32.dp,
                       margin: EdgeInsets.symmetric(horizontal: 8.dp),
                       decoration: BoxDecoration(
-                        color: isLightMode
-                            ? AppColors.primaryLightColor
-                            : AppColors.backgroundColor,
+                        color: AppColors.primaryLightColor,
                         borderRadius:
                         BorderRadius.circular(AppFontSize.circularRadiusVal),
                       ),
@@ -189,7 +187,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
   void _showPopupMenu(BuildContext context, Offset position) async {
     await showMenu(
       color: AppColors.backgroundColor,
-      elevation: isLightMode ? 4.dp : 0,
+      elevation: 4.dp,
       context: context,
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx + 1, position.dy + 1),
       shape: RoundedRectangleBorder(
@@ -1026,7 +1024,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
                     fontWeight: FontWeight.w800,
                     color: isSelected
                         ? AppColors.blackText
-                        : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                        : AppColors.oppositeBackgroundColor,
                     fontFamily: 'Arimo',
                   ),
                 ),
@@ -1039,7 +1037,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with WidgetsBinding
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? AppColors.blackText
-                          : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                          : AppColors.oppositeBackgroundColor,
                       fontFamily: 'Arimo',
                     ),
                   ),

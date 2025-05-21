@@ -9,26 +9,26 @@ import 'package:tshopper_app/sevices/TShopperService.dart';
 import 'package:tshopper_app/views/CollectingProductsScreen.dart';
 import '../../../../constants/AppColors.dart';
 import '../../../../constants/AppFontSize.dart';
-import '../../main.dart';
 import '../../models/managerRequest/ManagerRequest.dart';
 import '../../models/order/TShopperOrder.dart';
 import '../../sevices/ManagerRequestService.dart';
 import '../popup/BottomPopup.dart';
 import 'ChooseBagAndImagesWidget.dart';
 import 'CustomElevatedButton.dart';
-import 'ProductTShopperOrderCard.dart';
 
 class StoreOrderCard extends StatefulWidget {
   final TShopperOrderStore store;
   final TShopperOrder order;
   bool isInProgress;
   final void Function()? setState;
+  final void Function()? onRequestSent;
 
   StoreOrderCard({super.key,
     required this.store,
     required this.order,
     this.isInProgress = false,
     this.setState,
+    this.onRequestSent,
   });
 
   @override
@@ -117,7 +117,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                 if(widget.store.storeStatus == 'CANCELLED')...[
                   Container(
                     decoration:  BoxDecoration(
-                        color: AppColors.redColor.withOpacity(0.1),
+                        color: AppColors.redColor.withValues(alpha: 0.1),
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(
                             5.dp)
@@ -135,12 +135,22 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                     && widget.store.storeStatus != 'DONE')...[
                   GestureDetector(
                     onTap: () async {
-                      showSendManagerRequestPopup(context);
+                      bool response = await checkCancelStoreRequests();
+                      if(!response){
+                        showSendManagerRequestPopup(context);
+                      }else{
+                        showBottomPopup(
+                          context: context,
+                          message: "בקשה לביטול חנות נשלחה, לא ניתן לשלוח יותר מבקשה אחת",
+                          imagePath:
+                          "assets/images/warning_icon.png",
+                        );
+                      }
 
                     },
                     child: Container(
                       decoration:  BoxDecoration(
-                          color: AppColors.redColor.withOpacity(0.1),
+                          color: AppColors.redColor.withValues(alpha: 0.1),
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(
                               5.dp)
@@ -234,7 +244,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                           children: [
                             Container(
                               decoration:  BoxDecoration(
-                                  color: AppColors.orange.withOpacity(0.1),
+                                  color: AppColors.orange.withValues(alpha: 0.1),
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(
                                       5.dp)
@@ -310,7 +320,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                     },
                     child: Container(
                       decoration:  BoxDecoration(
-                        color: isLightMode ? AppColors.primaryLightColor : AppColors.black,
+                        color: AppColors.primaryLightColor,
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(5),
@@ -324,8 +334,10 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                 ]),
             if(isExpended)...[
               Column(
-                children: widget.store.products
-                    .map((product) => Column(
+              children: List.generate(widget.store.products.length, (index) {
+              final product = widget.store.products[index];
+
+                    return Column(
                   children: [
                     SizedBox(
                       child: Padding(
@@ -823,9 +835,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                                       child: Text(
                                         product.shopperNotes ?? "",
                                         style: TextStyle(
-                                            color: isLightMode
-                                                ? AppColors.darkGrey
-                                                : AppColors.white,
+                                            color: AppColors.darkGrey,
                                             fontSize: AppFontSize
                                                 .fontSizeExtraSmall,
                                             fontFamily: 'arimo'),
@@ -834,35 +844,55 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                                   ),
                                 ],
                               ),
-                              // SizedBox(
-                              //   width: 100.w,
-                              //   child: Padding(
-                              //     padding: const EdgeInsets.symmetric(
-                              //         vertical: 4.0, horizontal: 10),
-                              //     child: Text(
-                              //       product.shopperNotes ?? "",
-                              //       style: TextStyle(
-                              //           color: isLightMode ? AppColors.darkGrey : AppColors.white,
-                              //           fontSize: AppFontSize.fontSizeExtraSmall,
-                              //           fontFamily: 'arimo'
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ],
                         ),
                       ),
                     ),
-                    Divider(
-                      color: AppColors.borderColor,
-                      thickness: 1,
+                          if (index != widget.store.products.length - 1)
+                        Divider(
+                        color: AppColors.borderColor,
+                        thickness: 1,
+                        ),
+                  ],
+                );})
+                                ),
+              if (widget.store.customerNotes != "" &&
+                  widget.store.customerNotes != null) ...[
+                SizedBox(
+                  height: 8.dp,
+                ),
+                Row(
+                  children: [
+                    Image.asset(
+                      "assets/images/warning_icon.png",
+                      width: 16.dp,
+                      height: 16.dp,
+                    ),
+                    SizedBox(
+                      width: 8.dp,
+
+                    ),
+                    SizedBox(
+                      width: 74.w,
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.symmetric(
+                            vertical: 4.0,
+                            horizontal: 10),
+                        child: Text(
+                          widget.store.customerNotes,
+                          style: TextStyle(
+                              color: AppColors.darkGrey,
+                              fontSize: AppFontSize
+                                  .fontSizeExtraSmall,
+                              fontFamily: 'arimo'),
+                        ),
+                      ),
                     ),
                   ],
-                ))
-                    .toList(),
-              ),
-
+                ),
+              ],
               if(widget.isInProgress && (widget.store.storeStatus == 'ON_HOLD' || widget.store.storeStatus == 'IN_COLLECTION' || widget.store.storeStatus == 'COLLECTION_DONE'
               || widget.store.storeStatus == 'WAITING_FOR_PAYMENT'))...[
                 SizedBox(height: 16.dp,),
@@ -1049,157 +1079,6 @@ class _StoreOrderCardState extends State<StoreOrderCard>
      },
    );
  }
- void showCancelStorePopup(BuildContext context) {
-   showDialog(
-     context: context,
-     barrierDismissible: true,
-     builder: (BuildContext context) {
-       return AlertDialog(
-         shape: RoundedRectangleBorder(
-             borderRadius: BorderRadius.all(Radius.circular(15.dp))),
-         backgroundColor: AppColors.backgroundColor,
-         elevation: 0,
-         content: SizedBox(
-           width: MediaQuery.of(context).size.width * 0.9,
-           child: SingleChildScrollView(
-             child: Column(
-               mainAxisAlignment: MainAxisAlignment.start,
-               mainAxisSize: MainAxisSize.min,
-               children: <Widget>[
-                 Text("רשמי את סיבת הביטול ופרטי על המקרה 💜🙏🏻", style: TextStyle(color: AppColors.blackText, fontSize: 16.dp, fontWeight: FontWeight.w800, fontFamily: 'todofont'),),
-                 SizedBox(height: 16.dp,),
-                 Container(
-                   decoration: BoxDecoration(
-                     border: Border.all(color: AppColors.borderColor),
-                     borderRadius: BorderRadius.circular(8.dp),
-                   ),
-                   child: TextField(
-                     controller: notesController,
-                     autofocus: true,
-                     maxLines: 6,
-                     minLines: 1,
-                     keyboardType: TextInputType.multiline,
-                     textInputAction: TextInputAction.newline,
-                     onEditingComplete: () {
-                       if (context.mounted) {
-                         FocusScope.of(context).unfocus();
-                         Navigator.of(context).pop();
-                       }
-                     },
-                     decoration: InputDecoration(
-                       contentPadding: EdgeInsets.symmetric(
-                         horizontal: 10.dp,
-                         vertical: 10.dp,
-                       ),
-                       border: InputBorder.none,
-                     ),
-                     style: TextStyle(
-                       fontFamily: 'arimo',
-                       fontSize: AppFontSize.fontSizeRegular,
-                       fontWeight: FontWeight.w400,
-                       color: AppColors.blackText,
-                     ),
-                   ),
-                 ),
-               ],
-             ),
-           ),
-         ),
-         actions: <Widget>[
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-             mainAxisSize: MainAxisSize.max,
-             children: [
-               Expanded(
-                 flex: 1,
-                 child: Padding(
-                   padding:  EdgeInsets.only(left: 4.0.dp),
-                   child: TextButton(
-                     onPressed: () async {
-                       bool response = await TShopperService.cancelStore(storeId: widget.store.id, reason: notesController.text);
-                       if(response){
-                         if(response){
-                           showBottomPopup(
-                             context: context,
-                             message: "חנות בוטלה בהצלחה!💜",
-                             imagePath:
-                             "assets/images/warning_icon.png",
-                           );
-                           setState(() {
-                             widget.store.storeStatus = 'CANCELLED';
-                             if(widget.store.paymentRequests != null && widget.store.paymentRequests!.isNotEmpty){
-                               for(PaymentRequest payment in widget.store.paymentRequests!){
-                                 payment.status = 'CANCELLED';
-                               }
-                             }
-                           });
-                           Navigator.pop(context);
-                         }else{
-                           showBottomPopup(
-                             context: context,
-                             message: "שגיאה בעת ביטול חנות, נסה שוב",
-                             imagePath:
-                             "assets/images/warning_icon.png",
-                           );
-                         }
-                       }
-                     },
-                     style: TextButton.styleFrom(
-                       foregroundColor: AppColors.whiteText,
-                       backgroundColor: AppColors.primeryColor,
-                       padding: EdgeInsets.symmetric(
-                           horizontal: 0.dp, vertical: 4.dp),
-                       shape: RoundedRectangleBorder(
-                         borderRadius: BorderRadius.circular(8.dp),
-                       ),
-                     ),
-                     child: Text(
-                       "אישור",
-                       style: TextStyle(
-                           fontSize: 13.dp,
-                           fontFamily: 'arimo',
-                           color: AppColors.white,
-                           fontWeight: FontWeight.w800),
-                     ),
-                   ),
-                 ),
-               ),
-               Expanded(
-                 flex: 1,
-                 child: Padding(
-                   padding:  EdgeInsets.only(right: 4.0.dp),
-                   child: TextButton(
-                     onPressed: () {
-                       Navigator.pop(context);
-                     },
-                     style: TextButton.styleFrom(
-                       foregroundColor: AppColors.whiteText,
-                       backgroundColor: AppColors.superLightPurple,
-                       padding: EdgeInsets.symmetric(
-                           horizontal: 0.dp, vertical: 4.dp),
-                       shape: RoundedRectangleBorder(
-                         borderRadius: BorderRadius.circular(8.dp),
-                       ),
-                     ),
-                     child: Text(
-                       "ביטול",
-                       style: TextStyle(
-                           fontSize: 13.dp,
-                           fontFamily: 'arimo',
-                           color: AppColors.primeryColor,
-                           fontWeight: FontWeight.w500),
-                     ),
-                   ),
-                 ),
-               ),
-             ],
-           ),
-         ],
-       );
-     },
-   );
- }
  void showSendManagerRequestPopup(BuildContext context) {
    showDialog(
      context: context,
@@ -1289,6 +1168,7 @@ class _StoreOrderCardState extends State<StoreOrderCard>
                            imagePath:
                            "assets/images/warning_icon.png",
                          );
+                         widget.onRequestSent?.call();
                          Navigator.pop(context);
                        }else{
                          showBottomPopup(
@@ -1355,6 +1235,13 @@ class _StoreOrderCardState extends State<StoreOrderCard>
    );
  }
 
+ Future<bool> checkCancelStoreRequests() async{
 
+   List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+   if(requests.where((request) => request.requestSubject == "cancelStore" && request.objectId == widget.store.id).toList().isNotEmpty){
+     return true;
+   }
+   return false;
+ }
 
 }

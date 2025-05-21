@@ -28,18 +28,19 @@ class NewOrderItem extends riverpod.ConsumerStatefulWidget {
 }
 
 class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
-  bool isLoading = true;
   int minutesSinceAssigned = 0;
   Timer? assignTimer;
   Timer? cancelTimer;
   int remainingTimeInSeconds = 0;
+  bool isLoading = true;
   bool isExpended = false;
+  bool haveOpenRequest = false;
    TextEditingController _notesController = new TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
+    checkCancelOrderRequests();
     // Setup the cancel countdown timer
     remainingTimeInSeconds = widget.order.getOrderPlaced()
         .add(widget.order.orderStatus == "ASSIGNED"
@@ -103,7 +104,18 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return isLoading ?
+    Container(
+      color: AppColors.whiteText,
+      child: Center(
+        child: CupertinoActivityIndicator(
+          animating: true,
+          color: AppColors.blackText,
+          radius: 15.dp,
+        ),
+      ),
+    )
+        :  Padding(
       padding: EdgeInsets.only(top: 16.dp),
       child: OrderItemContainer(
         child: Padding(
@@ -169,6 +181,50 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                       ),
                     ],
                   ),
+                  if(haveOpenRequest)...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    color: AppColors.todoColor.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(6.dp),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 12.dp, vertical: 6.dp),
+                                    child: Row(
+                                      children: [
+                                        Image.asset("assets/images/newIcons/warningIcon.png", width: 14,),
+                                        SizedBox(width: 8,),
+                                        Text(
+                                          "נשלחה בקשה להסרה משיבוץ",
+                                          style: TextStyle(
+                                            color: AppColors.todoColor,
+                                            fontWeight: FontWeight.w800,
+                                            fontFamily: 'arimo',
+                                            fontSize: AppFontSize.fontSizeExtraSmall,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 8.dp),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                   Column(
                     children: widget.order.orderStores
                         .map((store) => StoreOrderCard(store: store, order: widget.order, isInProgress: false))
@@ -199,7 +255,17 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                               titleColor: AppColors.white,
                               title: "סרב",
                               onPressed: () async {
-                                showSendManagerRequestPopup(context);
+                                bool response = await checkCancelOrderRequestsExist();
+                                if(!response){
+                                  showSendManagerRequestPopup(context);
+                                }else{
+                                  showBottomPopup(
+                                    context: context,
+                                    message: "בקשה להסרת שיבוץ נשלחה, לא ניתן לשלוח יותר מבקשה אחת",
+                                    imagePath:
+                                    "assets/images/warning_icon.png",
+                                  );
+                                }
                               }),
                         ),
                       ),
@@ -230,9 +296,11 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text("האם את בטוחה שאת רוצה לקבל את ההזמנה?", style: TextStyle( fontFamily: 'arimo',
-                    fontWeight: FontWeight.w600, fontSize: 14.dp, color: AppColors.blackText
-                ),)
+                Text("האם את בטוחה שאת רוצה לקבל את ההזמנה?", style: TextStyle(color: AppColors.blackText, fontSize: 18,
+                    fontWeight: FontWeight.w800, fontFamily: 'todofont'), textAlign: TextAlign.center,),
+                SizedBox(height: 8,),
+                Text("שימי לב 💜 עלייך להתחיל מיד ללקט את ההזמנה", style: TextStyle(color: AppColors.blackText, fontSize: 14,
+                    fontWeight: FontWeight.w600, fontFamily: 'arimo'), textAlign: TextAlign.center,),
               ],
             ),
           ),
@@ -246,38 +314,41 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                   flex: 1,
                   child: Padding(
                     padding:  EdgeInsets.only(left: 4.0.dp),
-                    child: TextButton(
-                      onPressed: () async {
-                        String response = await TShopperService.updateOrder(
-                            orderId: widget.order.orderId,
-                            actionType: "IN_PROGRESS",
-                            notes: "",
-                            image: "", missionId: '');
-                        if(response.isEmpty){
-                          widget.order.orderStatus = "IN_PROGRESS";
-                          widget.order.timeLine.startWorkingOnOrder = DateTime.now().toString();
-                          widget.order.timeLine.lastUpdated = DateTime.now().toString();
-                          ref.read(inPreparationOrderProvider.notifier).addOrder(widget.order);
-                          ref.read(newOrderProvider.notifier).deleteOrder(widget.order.orderId);
-                        }
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.whiteText,
-                        backgroundColor: AppColors.primeryColor,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 0.dp, vertical: 15.dp),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.dp),
+                    child: Container(
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () async {
+                          String response = await TShopperService.updateOrder(
+                              orderId: widget.order.orderId,
+                              actionType: "IN_PROGRESS",
+                              notes: "",
+                              image: "", missionId: '');
+                          if(response.isEmpty){
+                            widget.order.orderStatus = "IN_PROGRESS";
+                            widget.order.timeLine.startWorkingOnOrder = DateTime.now().toString();
+                            widget.order.timeLine.lastUpdated = DateTime.now().toString();
+                            ref.read(inPreparationOrderProvider.notifier).addOrder(widget.order);
+                            ref.read(newOrderProvider.notifier).deleteOrder(widget.order.orderId);
+                          }
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.whiteText,
+                          backgroundColor: AppColors.primeryColor,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 0.dp, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "אישור",
-                        style: TextStyle(
-                            fontSize: AppFontSize.fontSizeRegular,
-                            fontFamily: 'arimo',
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w800),
+                        child: Text(
+                          "אישור",
+                          style: TextStyle(
+                              fontSize: AppFontSize.fontSizeRegular,
+                              fontFamily: 'arimo',
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w800),
+                        ),
                       ),
                     ),
                   ),
@@ -286,26 +357,29 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                   flex: 1,
                   child: Padding(
                     padding:  EdgeInsets.only(right: 4.0.dp),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.whiteText,
-                        backgroundColor: AppColors.superLightPurple,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 0.dp, vertical: 15.dp),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.dp),
+                    child: Container(
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.whiteText,
+                          backgroundColor: AppColors.superLightPurple,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 0.dp, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "ביטול",
-                        style: TextStyle(
-                            fontSize: AppFontSize.fontSizeRegular,
-                            fontFamily: 'arimo',
-                            color: AppColors.primeryColor,
-                            fontWeight: FontWeight.w500),
+                        child: Text(
+                          "ביטול",
+                          style: TextStyle(
+                              fontSize: AppFontSize.fontSizeRegular,
+                              fontFamily: 'arimo',
+                              color: AppColors.primeryColor,
+                              fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ),
                   ),
@@ -402,6 +476,9 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
                             shoppingCenterId: widget.order.centerShoppingId);
                         ManagerRequest? response = await ManagerRequestService.addManagerRequest(request);
                         if(response != null){
+                          setState(() {
+                            haveOpenRequest = true;
+                          });
                           showBottomPopup(
                             context: context,
                             message: "בקשת הסרה משיבוץ נשלחה בהצלחה!💜",
@@ -472,6 +549,28 @@ class _NewOrderItemState extends riverpod.ConsumerState<NewOrderItem> {
         );
       },
     );
+  }
+
+  Future<void> checkCancelOrderRequests() async{
+
+    List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+    if(requests.where((request) => request.requestSubject == "unassignShopper"
+        && (request.status == "Pending" || request.status == "InProgress")).toList().isNotEmpty){
+      haveOpenRequest = true;
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<bool> checkCancelOrderRequestsExist() async{
+
+    List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+    if(requests.where((request) => request.requestSubject == "unassignShopper"
+        && (request.status == "Pending" || request.status == "InProgress")).toList().isNotEmpty){
+      return true;
+    }
+    return false;
   }
 
 }

@@ -374,7 +374,7 @@ class _ShoppersCommentsBottomSheetState extends State<ShoppersCommentsBottomShee
                                                       children: [
                                                         Icon(
                                                           Icons.favorite,
-                                                          color: isLikedReply ? AppColors.redColor : isLightMode ? AppColors.superLightPurple : AppColors.white,
+                                                          color: isLikedReply ? AppColors.redColor : AppColors.superLightPurple,
                                                           size: 16.dp,
                                                         ),
                                                         SizedBox(height: 4.dp,),
@@ -395,7 +395,7 @@ class _ShoppersCommentsBottomSheetState extends State<ShoppersCommentsBottomShee
                                   children: [
                                     Icon(
                                       Icons.favorite,
-                                      color: isLiked ? AppColors.redColor : isLightMode ? AppColors.superLightPurple : AppColors.white,
+                                      color: isLiked ? AppColors.redColor : AppColors.superLightPurple,
                                       size: 16.dp,
                                     ),
                                     SizedBox(height: 4.dp,),

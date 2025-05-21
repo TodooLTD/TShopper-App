@@ -5,12 +5,11 @@ import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:tshopper_app/models/order/TShopperOrder.dart';
 import 'package:tshopper_app/sevices/TShopperService.dart';
-import 'package:tshopper_app/widgets/trackingOrder/ChooseColorWidget.dart';
 import 'package:tshopper_app/widgets/trackingOrder/StoreOrderCard.dart';
 import '../../../../constants/AppColors.dart';
 import '../../constants/AppFontSize.dart';
-import '../../enums/SupplyMode.dart';
-import '../../main.dart';
+import '../../models/managerRequest/ManagerRequest.dart';
+import '../../sevices/ManagerRequestService.dart';
 import '../popup/BottomPopup.dart';
 import 'ChooseTimeForCourierWidget.dart';
 import 'OrderItemContainer.dart';
@@ -27,6 +26,7 @@ class InProgressItem extends riverpod.ConsumerStatefulWidget {
 
 class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
   bool isLoading = true;
+  bool haveOpenRequest = false;
   bool isExpended = false;
   int selectedNumber = -1;
   int selectedPoint = -1;
@@ -38,6 +38,7 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
   @override
   void initState() {
     super.initState();
+    checkCancelOrderRequests();
     }
 
   @override
@@ -47,7 +48,18 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return isLoading ?
+    Container(
+      color: AppColors.whiteText,
+      child: Center(
+        child: CupertinoActivityIndicator(
+          animating: true,
+          color: AppColors.blackText,
+          radius: 15.dp,
+        ),
+      ),
+    )
+    : Padding(
       padding: EdgeInsets.only(top: 16.dp),
       child: OrderItemContainer(
         child: Padding(
@@ -105,6 +117,50 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
                       ),
                     ],
                   ),
+                  if(haveOpenRequest)...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    color: AppColors.todoColor.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(6.dp),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 12.dp, vertical: 6.dp),
+                                    child: Row(
+                                      children: [
+                                        Image.asset("assets/images/newIcons/warningIcon.png", width: 14,),
+                                        SizedBox(width: 8,),
+                                        Text(
+                                          "נשלחה בקשה לביטול חנות",
+                                          style: TextStyle(
+                                            color: AppColors.todoColor,
+                                            fontWeight: FontWeight.w800,
+                                            fontFamily: 'arimo',
+                                            fontSize: AppFontSize.fontSizeExtraSmall,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 8.dp),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                   if(widget.order.deliveryMissions.isNotEmpty)...[
                     if(widget.order.deliveryMissions.length > 1)...[
                       SizedBox(height: 8.dp),
@@ -238,11 +294,7 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
                   Column(
                     children: widget.order.orderStores
                         .map((store) => StoreOrderCard(store: store, order: widget.order, isInProgress: true,
-                      setState: (){
-                          setState(() {
-
-                          });
-                    },))
+                      setState: (){setState(() {});},onRequestSent: (){ print("on request senttttt"); setState(() {haveOpenRequest = true;});},))
                         .toList(),
                   ),
                   SizedBox(height: 8.dp),
@@ -564,12 +616,24 @@ class _InProgressItemState extends riverpod.ConsumerState<InProgressItem> {
         hint: Text(hint, style: _hintStyle()),
         icon: Icon(Icons.arrow_drop_down, color: AppColors.mediumGreyText),
         dropdownColor: AppColors.backgroundColor,
-        elevation: isLightMode ? 2 : 0,
+        elevation: 2,
         menuMaxHeight: 250.dp,
         items: items.map((item) => DropdownMenuItem(value: item, child: Text(item, style: _optionStyle(item)))).toList(),
         onChanged: onChanged,
       ),
     );
+  }
+
+  Future<void> checkCancelOrderRequests() async{
+
+    List<ManagerRequest> requests = await ManagerRequestService.getManagerRequestsByOrder(widget.order.orderId);
+    if(requests.where((request) => request.requestSubject == "cancelStore"
+        && (request.status == "Pending" || request.status == "InProgress")).toList().isNotEmpty){
+      haveOpenRequest = true;
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   TextStyle _hintStyle() => TextStyle(color: AppColors.mediumGreyText, fontWeight: FontWeight.w500, fontSize: AppFontSize.fontSizeExtraSmall, fontFamily: 'arimo');

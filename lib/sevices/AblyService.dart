@@ -228,6 +228,7 @@ class AblyService {
                   .read(inPreparationOrderProvider)
                   .allInPreparationOrders[currentOrderIndex]
                   : null;
+              print("hereeee !!!!");
               if (currentOrder == null) {
                 currentOrderIndex =
                     ref.read(readyOrderProvider).allReadyOrders.indexWhere(
@@ -240,15 +241,31 @@ class AblyService {
                     .read(readyOrderProvider)
                     .allReadyOrders[currentOrderIndex]
                     : null;
-                if (currentOrder != null) {
+                if (currentOrder == null) {
+                  currentOrderIndex =
+                      ref.read(pendingOrderProvider).allPendingOrders.indexWhere(
+                            (person) =>
+                        person.orderId == orderId,
+                      );
+
+                  currentOrder = currentOrderIndex > -1
+                      ? ref
+                      .read(pendingOrderProvider)
+                      .allPendingOrders[currentOrderIndex]
+                      : null;
+                  if(currentOrder != null){
+                    ref
+                        .read(pendingOrderProvider.notifier)
+                        .deleteOrder(orderId);
+                  }
+                }else{
                   ref
                       .read(readyOrderProvider.notifier)
                       .deleteOrder(orderId);
                 }
               } else {
-                ref
-                    .read(inPreparationOrderProvider.notifier)
-                    .deleteOrder(orderId);
+                print("not null !!!!");
+                ref.read(inPreparationOrderProvider.notifier).deleteOrder(orderId);
               }
           } else {
             ref.read(newOrderProvider.notifier).deleteOrder(orderId);

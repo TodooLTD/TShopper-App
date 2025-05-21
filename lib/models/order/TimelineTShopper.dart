@@ -1,11 +1,11 @@
 class TimelineTShopper {
   String? orderPlaced;
   String? orderSeenByShopper;
-  int? ShopperIdSeenBy;
-  String? ShopperNameSeenBy;
+  String? shopperIdSeenBy;
+  String? shopperNameSeenBy;
   String? orderConfirmedByShopper;
-  int? ShopperIdConfirmedBy;
-  String? ShopperNameConfirmedBy;
+  String? shopperIdConfirmedBy;
+  String? shopperNameConfirmedBy;
   String? orderAssignToShopper;
   String? startWorkingOnOrder;
   String? doneCollecting;
@@ -47,10 +47,10 @@ class TimelineTShopper {
     this.orderRefused,
     this.courierAssigned,
     this.cancelReason,
-    this.ShopperIdSeenBy,
-    this.ShopperNameSeenBy,
-    this.ShopperIdConfirmedBy,
-    this.ShopperNameConfirmedBy,
+    this.shopperIdSeenBy,
+    this.shopperNameSeenBy,
+    this.shopperIdConfirmedBy,
+    this.shopperNameConfirmedBy,
   });
 
   factory TimelineTShopper.fromJson(Map<String, dynamic> json) {
@@ -76,10 +76,10 @@ class TimelineTShopper {
       orderRefused: json['orderRefused'] ?? "",
       courierAssigned: json['courierAssigned'] ?? "",
       cancelReason: json['cancelReason'] ?? "",
-      ShopperNameSeenBy: json['ShopperNameSeenBy'] ?? "",
-      ShopperNameConfirmedBy: json['ShopperNameConfirmedBy'] ?? "",
-      ShopperIdSeenBy: json['ShopperIdSeenBy'] ?? 0,
-      ShopperIdConfirmedBy: json['ShopperIdConfirmedBy'] ?? 0,
+      shopperNameSeenBy: json['shopperNameSeenBy'] ?? "",
+      shopperNameConfirmedBy: json['shopperNameConfirmedBy'] ?? "",
+      shopperIdSeenBy: json['shopperIdSeenBy'] ?? "",
+      shopperIdConfirmedBy: json['shopperIdConfirmedBy'] ?? "",
     );
   }
 

@@ -118,7 +118,7 @@ class _AfterCollectionStoreOrderCardState extends State<AfterCollectionStoreOrde
                     },
                     child: Container(
                       decoration:  BoxDecoration(
-                        color: isLightMode ? AppColors.primaryLightColor : AppColors.black,
+                        color: AppColors.primaryLightColor,
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(5),
@@ -164,7 +164,7 @@ class _AfterCollectionStoreOrderCardState extends State<AfterCollectionStoreOrde
                     child: Text(
                       widget.store.customerNotes,
                       style: TextStyle(
-                          color: isLightMode ? AppColors.darkGrey : AppColors.white,
+                          color: AppColors.darkGrey,
                           fontSize: AppFontSize.fontSizeExtraSmall,
                           fontFamily: 'arimo'
                       ),

@@ -33,6 +33,7 @@ class ConversationNotifier extends StateNotifier<ConversationData> {
   }
 
   void newMessage(String orderId) async {
+    print("new message func");
     Conversation? conversation = await ConversationService.getConversationByOrderId(orderId);
     state = state.copyWith(currentConversation: conversation);
     if(conversation != null){

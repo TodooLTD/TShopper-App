@@ -355,7 +355,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.dp, vertical: 6.dp),
               decoration: BoxDecoration(
-                color: selectedIndex == index ? AppColors.primeryColor : isLightMode ? AppColors.primaryLightColor : AppColors.backgroundColor,
+                color: selectedIndex == index ? AppColors.primeryColor : AppColors.primaryLightColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -551,7 +551,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                     fontWeight: FontWeight.w800,
                     color: isSelected
                         ? AppColors.blackText
-                        : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                        : AppColors.oppositeBackgroundColor,
                     fontFamily: 'Arimo',
                   ),
                 ),
@@ -564,7 +564,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? AppColors.blackText
-                          : isLightMode ? AppColors.oppositeBackgroundColor : AppColors.blackText,
+                          : AppColors.oppositeBackgroundColor,
                       fontFamily: 'Arimo',
                     ),
                   ),

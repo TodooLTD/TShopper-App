@@ -10,18 +10,18 @@ class AppFontSize {
   static double smallFontSize = Platform.isAndroid ? 10.5.dp : 11.dp;
   static double extraSmallFontSize = Platform.isAndroid ? 9.5.dp : 10.dp;
 
-  static double fontSizeSuperTitle = Platform.isAndroid ? 23.sp : 27.sp;
-  static double fontSizeTitle = Platform.isAndroid ? 15.sp : 17.sp;
-  static double fontSizeRegular = Platform.isAndroid ? 13.sp : 15.sp;
-  static double fontSizeMedium = Platform.isAndroid ? 12.5.sp : 14.5.sp;
-  static double fontSizeSmall = Platform.isAndroid ? 12.sp : 14.sp;
-  static double fontSizeMiddleSmall = Platform.isAndroid ? 11.sp : 13.sp;
-  static double fontSizeExtraSmall = Platform.isAndroid ? 10.sp : 12.sp;
-  static double fontSizeExtraExtraSmall = Platform.isAndroid ? 9.sp : 10.sp;
-  static double fontSizeExtraExtraExtraSmall = Platform.isAndroid ? 6.sp : 7.sp;
-  static double fontSizeIconSmall = Platform.isAndroid ? 16.sp : 20.sp;
-  static double fontSizeIconTextBig = Platform.isAndroid ? 18.sp : 22.sp;
-  static double fontSizeMegaSmall =Platform.isAndroid ? 5.sp : 6.sp;
+  static double fontSizeSuperTitle = 27;
+  static double fontSizeTitle = 17;
+  static double fontSizeRegular = 15;
+  static double fontSizeMedium = 14.5;
+  static double fontSizeSmall = 14;
+  static double fontSizeMiddleSmall = 13;
+  static double fontSizeExtraSmall = 12;
+  static double fontSizeExtraExtraSmall = 10;
+  static double fontSizeExtraExtraExtraSmall = 7;
+  static double fontSizeIconSmall = 20;
+  static double fontSizeIconTextBig = 22;
+  static double fontSizeMegaSmall = 6;
 
   // Login & Registration related widgets/pages
   static double mainPageTitle = Platform.isAndroid ? 21.dp : 23.dp;
